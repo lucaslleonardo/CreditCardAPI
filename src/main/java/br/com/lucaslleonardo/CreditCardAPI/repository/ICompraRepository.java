@@ -1,0 +1,9 @@
+package br.com.lucaslleonardo.CreditCardAPI.repository;
+
+import br.com.lucaslleonardo.CreditCardAPI.database.entity.CompraEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+
+public interface ICompraRepository extends JpaRepository<CompraEntity,Long>,
+        JpaSpecificationExecutor<CompraEntity> {
+}
