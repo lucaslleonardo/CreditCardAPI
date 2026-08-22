@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Getter
 @Setter
@@ -33,6 +34,6 @@ public class ContaPostRequest {
     private ClienteEntity cliente;
 
     @NotBlank
-    private CartaoEntity cartao;
+    private List<CartaoEntity> cartao;
 }
 

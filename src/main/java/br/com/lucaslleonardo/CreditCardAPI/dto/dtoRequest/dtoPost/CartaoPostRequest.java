@@ -11,6 +11,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.YearMonth;
+import java.util.List;
 
 @Getter
 @Setter
@@ -46,9 +47,9 @@ public class CartaoPostRequest {
     private ContaEntity conta;
 
     @NotBlank
-    private CompraEntity compra;
+    private List<CompraEntity> compra;
 
     @NotBlank
-    private FaturaEntity fatura;
+    private List<FaturaEntity> fatura;
 
 }
