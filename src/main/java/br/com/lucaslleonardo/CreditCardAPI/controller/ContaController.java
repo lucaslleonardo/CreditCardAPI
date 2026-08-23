@@ -4,6 +4,7 @@ import br.com.lucaslleonardo.CreditCardAPI.dto.dtoRequest.dtoPatch.ContaPatchReq
 import br.com.lucaslleonardo.CreditCardAPI.dto.dtoRequest.dtoPost.ContaPostRequest;
 import br.com.lucaslleonardo.CreditCardAPI.dto.dtoResponse.ContaResponse;
 import br.com.lucaslleonardo.CreditCardAPI.service.ContaService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +26,7 @@ public class ContaController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ContaResponse save(@RequestBody ContaPostRequest contaPostRequest){
+    public ContaResponse save(@RequestBody @Valid ContaPostRequest contaPostRequest){
         log.info("requisicao para criar conta");
         return contaService.save(contaPostRequest);
     }
@@ -47,7 +48,7 @@ public class ContaController {
 
     @PutMapping("/{clienteId/{id}/atualizar")
     @ResponseStatus(HttpStatus.OK)
-    public void update(@PathVariable long id,@RequestBody ContaPatchRequest contaPatchRequest){
+    public void update(@PathVariable long id,@RequestBody @Valid ContaPatchRequest contaPatchRequest){
        log.info("requisicao para atualizar conta do Cliente");
        contaService.update(id,contaPatchRequest);
     }

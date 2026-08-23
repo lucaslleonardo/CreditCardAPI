@@ -49,7 +49,7 @@ public class UsuarioController {
 
     @PutMapping("/{id}/atualizar")
     @ResponseStatus(HttpStatus.OK)
-    public void atualizar(@PathVariable Long id, @RequestBody UsuarioPatchRequest usuarioPatchRequest) {
+    public void atualizar(@PathVariable Long id, @RequestBody @Valid UsuarioPatchRequest usuarioPatchRequest) {
         log.info("requisição para atualizar informações do usuario");
         usuarioService.update(usuarioPatchRequest, id);
     }
