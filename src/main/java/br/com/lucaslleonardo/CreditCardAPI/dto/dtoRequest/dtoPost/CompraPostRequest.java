@@ -30,9 +30,6 @@ public class CompraPostRequest {
     private LocalDate dataCompra;
 
     @NotBlank
-    private StatusCompra statusCompra;
-
-    @NotBlank
     private CartaoEntity cartao;
 
     @NotBlank

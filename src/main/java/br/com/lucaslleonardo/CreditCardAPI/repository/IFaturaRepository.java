@@ -4,6 +4,10 @@ import br.com.lucaslleonardo.CreditCardAPI.database.entity.FaturaEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-public interface IFaturaRepository extends JpaRepository<FaturaEntity, Long >,
-        JpaSpecificationExecutor<FaturaEntity> {
+import java.util.Optional;
+
+public interface IFaturaRepository extends JpaRepository<FaturaEntity, Long >, JpaSpecificationExecutor<FaturaEntity> {
+
+    Optional<FaturaEntity> findById(long id);
+    Optional <FaturaEntity> findByContaId(Long ContaId);
 }
