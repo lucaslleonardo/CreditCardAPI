@@ -100,7 +100,7 @@ class CompraServiceTest {
         when(cartaoRepository.findById(1L))
                 .thenReturn(Optional.of(cartao));
 
-        when(faturaRepository.findByContaId(1L))
+        when(faturaRepository.findByCartaoContaId(1L))
                 .thenReturn(Optional.of(fatura));
 
         when(compraMapper.toEntity(compraPostRequest))
@@ -121,7 +121,7 @@ class CompraServiceTest {
         assertEquals(new BigDecimal("2500.00"), cartao.getLimiteDisponivel());
 
         verify(cartaoRepository).findById(1L);
-        verify(faturaRepository).findByContaId(1L);
+        verify(faturaRepository).findByCartaoContaId(1L);
         verify(compraMapper).toEntity(compraPostRequest);
         verify(faturaRepository).save(fatura);
         verify(cartaoRepository).save(cartao);
@@ -137,7 +137,7 @@ class CompraServiceTest {
         when(cartaoRepository.findById(1L))
                 .thenReturn(Optional.of(cartao));
 
-        when(faturaRepository.findByContaId(1L))
+        when(faturaRepository.findByCartaoContaId(1L))
                 .thenReturn(Optional.of(fatura));
 
         when(compraMapper.toEntity(compraPostRequest))
@@ -193,7 +193,7 @@ class CompraServiceTest {
         assertEquals("Cartao nao ativo", exception.getMessage());
 
         verify(cartaoRepository).findById(1L);
-        verify(faturaRepository, never()).findByContaId(any());
+        verify(faturaRepository, never()).findByCartaoContaId(any());
         verify(compraRepository, never()).save(any());
     }
 
@@ -203,7 +203,7 @@ class CompraServiceTest {
         when(cartaoRepository.findById(1L))
                 .thenReturn(Optional.of(cartao));
 
-        when(faturaRepository.findByContaId(1L))
+        when(faturaRepository.findByCartaoContaId(1L))
                 .thenReturn(Optional.empty());
 
         RuntimeException exception = assertThrows(
@@ -214,7 +214,7 @@ class CompraServiceTest {
         assertEquals("Fatura nao encontrada", exception.getMessage());
 
         verify(cartaoRepository).findById(1L);
-        verify(faturaRepository).findByContaId(1L);
+        verify(faturaRepository).findByCartaoContaId(1L);
         verify(compraRepository, never()).save(any());
     }
 
@@ -226,7 +226,7 @@ class CompraServiceTest {
         when(cartaoRepository.findById(1L))
                 .thenReturn(Optional.of(cartao));
 
-        when(faturaRepository.findByContaId(1L))
+        when(faturaRepository.findByCartaoContaId(1L))
                 .thenReturn(Optional.of(fatura));
 
         RuntimeException exception = assertThrows(
@@ -236,7 +236,7 @@ class CompraServiceTest {
 
         assertEquals("Fatura nao esta aberta", exception.getMessage());
 
-        verify(faturaRepository).findByContaId(1L);
+        verify(faturaRepository).findByCartaoContaId(1L);
         verify(compraRepository, never()).save(any());
     }
 
@@ -300,7 +300,7 @@ class CompraServiceTest {
         when(compraRepository.findById(1L))
                 .thenReturn(Optional.of(compra));
 
-        when(faturaRepository.findByContaId(1L))
+        when(faturaRepository.findByCartaoContaId(1L))
                 .thenReturn(Optional.of(fatura));
 
         when(compraRepository.save(compra))
@@ -317,7 +317,7 @@ class CompraServiceTest {
         assertEquals(new BigDecimal("3500.00"), cartao.getLimiteDisponivel());
 
         verify(compraRepository).findById(1L);
-        verify(faturaRepository).findByContaId(1L);
+        verify(faturaRepository).findByCartaoContaId(1L);
         verify(faturaRepository).save(fatura);
         verify(cartaoRepository).save(cartao);
         verify(compraRepository).save(compra);
@@ -338,7 +338,7 @@ class CompraServiceTest {
         assertEquals("Compra nao encontrada", exception.getMessage());
 
         verify(compraRepository).findById(1L);
-        verify(faturaRepository, never()).findByContaId(any());
+        verify(faturaRepository, never()).findByCartaoContaId(any());
         verify(cartaoRepository, never()).save(any());
     }
 
@@ -348,7 +348,7 @@ class CompraServiceTest {
         when(compraRepository.findById(1L))
                 .thenReturn(Optional.of(compra));
 
-        when(faturaRepository.findByContaId(1L))
+        when(faturaRepository.findByCartaoContaId(1L))
                 .thenReturn(Optional.empty());
 
         RuntimeException exception = assertThrows(
@@ -359,7 +359,7 @@ class CompraServiceTest {
         assertEquals("Fatura nao encontrada", exception.getMessage());
 
         verify(compraRepository).findById(1L);
-        verify(faturaRepository).findByContaId(1L);
+        verify(faturaRepository).findByCartaoContaId(1L);
         verify(faturaRepository, never()).save(any());
         verify(cartaoRepository, never()).save(any());
     }

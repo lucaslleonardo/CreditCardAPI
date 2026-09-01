@@ -37,15 +37,15 @@ public class FaturaService {
 
         log.info("Iniciando cadastro da fatura para o cartao de ID {}", cartaoId);
 
-        if (faturaRepository.findByCartaId(cartaoId).isPresent()) {
+        if (faturaRepository.findByCartaoIdAndStatusFatura(cartaoId,StatusFatura.ABERTA).isPresent()) {
             log.warn("Ja existe uma fatura para o cartao de ID {}", cartaoId);
             throw new RuntimeException("Fatura ja cadastrada");
         }
 
         FaturaEntity faturaEntity = faturaMapper.toEntity(faturaPostRequest);
 
-        LocalDate dataFechamento = LocalDate.now();
-        LocalDate dataVencimento = dataFechamento.plusDays(30);
+        LocalDate dataFechamento = faturaPostRequest.getDataFechamento();
+        LocalDate dataVencimento = dataFechamento.plusDays(7);
 
         faturaEntity.setDataFechamento(dataFechamento);
         faturaEntity.setDataVencimento(dataVencimento);
@@ -67,7 +67,7 @@ public class FaturaService {
 
         log.info("Consultando fatura do cartao de ID {}", cartaoId);
 
-        FaturaEntity faturaEntity = faturaRepository.findByCartaId(cartaoId)
+        FaturaEntity faturaEntity = faturaRepository.findByCartaoIdAndStatusFatura(cartaoId,StatusFatura.ABERTA)
                 .orElseThrow(() -> { log.warn("Fatura nao encontrada para o cartao de ID {}", cartaoId);
 
                     return new RuntimeException("Fatura nao encontrada");
@@ -99,7 +99,7 @@ public class FaturaService {
 
         log.info("Iniciando fechamento da fatura do cartao de ID {}", cartaoId);
 
-        FaturaEntity faturaEntity = faturaRepository.findByCartaId(cartaoId)
+        FaturaEntity faturaEntity = faturaRepository.findByCartaoIdAndStatusFatura(cartaoId,StatusFatura.ABERTA)
                 .orElseThrow(() -> {
                     log.warn("Fatura nao encontrada para o cartao de ID {}", cartaoId);
 
@@ -126,7 +126,7 @@ public class FaturaService {
 
         log.info("Consultando valor da fatura do cartao de ID {}", cartaoId);
 
-        FaturaEntity faturaEntity = faturaRepository.findByCartaId(cartaoId)
+        FaturaEntity faturaEntity = faturaRepository.findByCartaoIdAndStatusFatura(cartaoId,StatusFatura.ABERTA)
                 .orElseThrow(() -> {
                     log.warn("Fatura nao encontrada para o cartao de ID {}", cartaoId);
 
@@ -143,7 +143,7 @@ public class FaturaService {
         log.info("Consultando data de vencimento da fatura do cartao de ID {}", cartaoId
         );
 
-        FaturaEntity faturaEntity = faturaRepository.findByCartaId(cartaoId)
+        FaturaEntity faturaEntity = faturaRepository.findByCartaoIdAndStatusFatura(cartaoId,StatusFatura.ABERTA)
                 .orElseThrow(() -> {
                     log.warn("Fatura nao encontrada para o cartao de ID {}", cartaoId);
 
@@ -189,7 +189,7 @@ public class FaturaService {
         log.info("Consultando compras da fatura do cartao de ID {}", cartaoId
         );
 
-        FaturaEntity faturaEntity = faturaRepository.findByCartaId(cartaoId)
+        FaturaEntity faturaEntity = faturaRepository.findByCartaoIdAndStatusFatura(cartaoId,StatusFatura.ABERTA)
                 .orElseThrow(() -> {
                     log.warn("Fatura nao encontrada para o cartao de ID {}", cartaoId);
 

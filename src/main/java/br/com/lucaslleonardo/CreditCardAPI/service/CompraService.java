@@ -58,7 +58,7 @@ public class CompraService {
 
         log.info("Consultando fatura da conta de ID {}", conta.getId());
 
-        FaturaEntity faturaEntity = faturaRepository.findByContaId(conta.getId())
+        FaturaEntity faturaEntity = faturaRepository.findByCartaoContaId(conta.getId())
                 .orElseThrow(() -> { log.warn("Fatura nao encontrada para a conta de ID {}", conta.getId());
                     return new RuntimeException("Fatura nao encontrada");
                 });
@@ -177,7 +177,7 @@ public class CompraService {
 
         log.info("Consultando fatura da conta de ID {}", contaEntity.getId());
 
-        FaturaEntity faturaEntity = faturaRepository.findByContaId(contaEntity.getId())
+        FaturaEntity faturaEntity = faturaRepository.findByCartaoContaId(contaEntity.getId())
                 .orElseThrow(() -> {log.warn("Fatura nao encontrada para a conta de ID {}", contaEntity.getId());
                     return new RuntimeException("Fatura nao encontrada");
                 });

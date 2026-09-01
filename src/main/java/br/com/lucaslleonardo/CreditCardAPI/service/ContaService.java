@@ -55,7 +55,7 @@ public class ContaService {
     public List<ContaResponse> verContasDeCliente(long clienteId) {
 
         log.info("retorna todas contas de um cliente {}",clienteId);
-        List<ContaEntity> contas = contaRepository.findClienteId(clienteId);
+        List<ContaEntity> contas = contaRepository.findByClienteId(clienteId);
 
         return contaMapper.toResponseList(contas);
     }

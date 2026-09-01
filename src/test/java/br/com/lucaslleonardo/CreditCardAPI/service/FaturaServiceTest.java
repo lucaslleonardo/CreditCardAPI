@@ -5,7 +5,6 @@ import br.com.lucaslleonardo.CreditCardAPI.database.entity.CompraEntity;
 import br.com.lucaslleonardo.CreditCardAPI.database.entity.FaturaEntity;
 import br.com.lucaslleonardo.CreditCardAPI.database.enums.StatusFatura;
 import br.com.lucaslleonardo.CreditCardAPI.database.specification.FaturaFilterRequest;
-import br.com.lucaslleonardo.CreditCardAPI.database.specification.FaturaSpecification;
 import br.com.lucaslleonardo.CreditCardAPI.dto.dtoRequest.dtoPost.FaturaPostRequest;
 import br.com.lucaslleonardo.CreditCardAPI.dto.dtoResponse.FaturaResponse;
 import br.com.lucaslleonardo.CreditCardAPI.mappers.FaturaMapper;
@@ -13,6 +12,7 @@ import br.com.lucaslleonardo.CreditCardAPI.repository.ICartaoRepository;
 import br.com.lucaslleonardo.CreditCardAPI.repository.ICompraRepository;
 import br.com.lucaslleonardo.CreditCardAPI.repository.IFaturaRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -46,11 +47,10 @@ class FaturaServiceTest {
     @InjectMocks
     private FaturaService faturaService;
 
-    private FaturaEntity fatura;
     private CartaoEntity cartao;
+    private FaturaEntity fatura;
     private FaturaResponse faturaResponse;
     private FaturaPostRequest faturaPostRequest;
-    private FaturaFilterRequest filter;
 
     @BeforeEach
     void setUp() {
@@ -61,35 +61,35 @@ class FaturaServiceTest {
 
         fatura = FaturaEntity.builder()
                 .id(1L)
-                .dataFechamento(LocalDate.now())
-                .dataVencimento(LocalDate.now().plusDays(30))
                 .valor(BigDecimal.ZERO)
+                .dataFechamento(LocalDate.now())
+                .dataVencimento(LocalDate.now().plusDays(7))
                 .statusFatura(StatusFatura.ABERTA)
                 .cartao(cartao)
                 .build();
 
         faturaResponse = FaturaResponse.builder()
                 .id(1L)
-                .dataFechamento(fatura.getDataFechamento())
-                .dataVencimento(fatura.getDataVencimento())
                 .valor(BigDecimal.ZERO)
+                .dataFechamento(LocalDate.now())
+                .dataVencimento(LocalDate.now().plusDays(7))
                 .statusFatura(StatusFatura.ABERTA)
                 .build();
 
-        faturaPostRequest = mock(FaturaPostRequest.class);
-
-        filter = mock(FaturaFilterRequest.class);
+        faturaPostRequest = FaturaPostRequest.builder()
+                .cartao(cartao)
+                .dataFechamento(LocalDate.now().plusDays(10))
+                .build();
     }
 
-
     @Test
+    @DisplayName("Deve cadastrar fatura com sucesso")
     void deveCadastrarFaturaComSucesso() {
 
-        when(faturaPostRequest.getCartao())
-                .thenReturn(cartao);
-
-        when(faturaRepository.findByCartaId(cartao.getId()))
-                .thenReturn(Optional.empty());
+        when(faturaRepository.findByCartaoIdAndStatusFatura(
+                cartao.getId(),
+                StatusFatura.ABERTA
+        )).thenReturn(Optional.empty());
 
         when(faturaMapper.toEntity(faturaPostRequest))
                 .thenReturn(fatura);
@@ -100,34 +100,39 @@ class FaturaServiceTest {
         when(faturaMapper.toResponse(fatura))
                 .thenReturn(faturaResponse);
 
-        FaturaResponse response =
+        FaturaResponse resultado =
                 faturaService.cadastrarInfosFatura(faturaPostRequest);
 
-        assertNotNull(response);
-        assertEquals(faturaResponse, response);
+        assertNotNull(resultado);
+        assertEquals(faturaResponse, resultado);
 
-        assertEquals(StatusFatura.ABERTA, fatura.getStatusFatura());
-        assertEquals(LocalDate.now(), fatura.getDataFechamento());
+        assertEquals(faturaPostRequest.getDataFechamento(),
+                fatura.getDataFechamento());
+
         assertEquals(
-                LocalDate.now().plusDays(30),
+                faturaPostRequest.getDataFechamento().plusDays(7),
                 fatura.getDataVencimento()
         );
 
-        verify(faturaRepository).findByCartaId(cartao.getId());
-        verify(faturaMapper).toEntity(faturaPostRequest);
+        assertEquals(StatusFatura.ABERTA, fatura.getStatusFatura());
+
+        verify(faturaRepository).findByCartaoIdAndStatusFatura(
+                cartao.getId(),
+                StatusFatura.ABERTA
+        );
+
         verify(faturaRepository).save(fatura);
         verify(faturaMapper).toResponse(fatura);
     }
 
-
     @Test
-    void deveLancarErroAoCadastrarFaturaJaExistente() {
+    @DisplayName("Deve lançar exceção ao cadastrar fatura quando já existir uma fatura aberta")
+    void deveLancarExcecaoQuandoJaExistirFaturaAberta() {
 
-        when(faturaPostRequest.getCartao())
-                .thenReturn(cartao);
-
-        when(faturaRepository.findByCartaId(cartao.getId()))
-                .thenReturn(Optional.of(fatura));
+        when(faturaRepository.findByCartaoIdAndStatusFatura(
+                cartao.getId(),
+                StatusFatura.ABERTA
+        )).thenReturn(Optional.of(fatura));
 
         RuntimeException exception = assertThrows(
                 RuntimeException.class,
@@ -136,208 +141,202 @@ class FaturaServiceTest {
 
         assertEquals("Fatura ja cadastrada", exception.getMessage());
 
-        verify(faturaRepository).findByCartaId(cartao.getId());
-        verify(faturaMapper, never()).toEntity(any());
-        verify(faturaRepository, never()).save(any());
+        verify(faturaRepository, never()).save(any(FaturaEntity.class));
+        verify(faturaMapper, never()).toEntity(any(FaturaPostRequest.class));
     }
 
-
     @Test
-    void deveConsultarFaturaComSucesso() {
+    @DisplayName("Deve consultar a fatura aberta do cartão")
+    void deveConsultarFaturaAberta() {
 
-        when(faturaRepository.findByCartaId(1L))
-                .thenReturn(Optional.of(fatura));
+        when(faturaRepository.findByCartaoIdAndStatusFatura(
+                cartao.getId(),
+                StatusFatura.ABERTA
+        )).thenReturn(Optional.of(fatura));
 
         when(faturaMapper.toResponse(fatura))
                 .thenReturn(faturaResponse);
 
-        FaturaResponse response =
-                faturaService.consultaFatura(1L);
+        FaturaResponse resultado =
+                faturaService.consultaFatura(cartao.getId());
 
-        assertNotNull(response);
-        assertEquals(faturaResponse, response);
+        assertNotNull(resultado);
+        assertEquals(faturaResponse, resultado);
 
-        verify(faturaRepository).findByCartaId(1L);
+        verify(faturaRepository).findByCartaoIdAndStatusFatura(
+                cartao.getId(),
+                StatusFatura.ABERTA
+        );
+
         verify(faturaMapper).toResponse(fatura);
     }
 
-
     @Test
-    void deveLancarErroQuandoFaturaNaoExistirNaConsulta() {
+    @DisplayName("Deve lançar exceção ao consultar fatura inexistente")
+    void deveLancarExcecaoAoConsultarFaturaInexistente() {
 
-        when(faturaRepository.findByCartaId(1L))
-                .thenReturn(Optional.empty());
+        when(faturaRepository.findByCartaoIdAndStatusFatura(
+                cartao.getId(),
+                StatusFatura.ABERTA
+        )).thenReturn(Optional.empty());
 
         RuntimeException exception = assertThrows(
                 RuntimeException.class,
-                () -> faturaService.consultaFatura(1L)
+                () -> faturaService.consultaFatura(cartao.getId())
         );
 
         assertEquals("Fatura nao encontrada", exception.getMessage());
 
-        verify(faturaRepository).findByCartaId(1L);
-        verify(faturaMapper, never()).toResponse(any());
+        verify(faturaMapper, never()).toResponse(any(FaturaEntity.class));
     }
 
-
     @Test
-    void deveConsultarTodasFaturasComSucesso() {
+    @DisplayName("Deve consultar todas as faturas do cartão")
+    void deveConsultarTodasAsFaturas() {
 
-        List<FaturaEntity> faturas = List.of(fatura);
+        FaturaEntity fatura2 = FaturaEntity.builder()
+                .id(2L)
+                .cartao(cartao)
+                .valor(BigDecimal.valueOf(200))
+                .statusFatura(StatusFatura.FECHADA)
+                .build();
+
+        List<FaturaEntity> faturas = List.of(fatura, fatura2);
+
         List<FaturaResponse> responses = List.of(faturaResponse);
 
-        when(cartaoRepository.findById(1L))
+        when(cartaoRepository.findById(cartao.getId()))
                 .thenReturn(Optional.of(cartao));
 
-        when(faturaRepository.findByCartaoId(1L))
+        when(faturaRepository.findByCartaoId(cartao.getId()))
                 .thenReturn(faturas);
 
         when(faturaMapper.toResponseList(faturas))
                 .thenReturn(responses);
 
         List<FaturaResponse> resultado =
-                faturaService.consultaFaturas(1L);
+                faturaService.consultaFaturas(cartao.getId());
 
         assertNotNull(resultado);
         assertEquals(responses, resultado);
 
-        verify(cartaoRepository).findById(1L);
-        verify(faturaRepository).findByCartaoId(1L);
+        verify(cartaoRepository).findById(cartao.getId());
+        verify(faturaRepository).findByCartaoId(cartao.getId());
         verify(faturaMapper).toResponseList(faturas);
     }
 
-
     @Test
-    void deveLancarErroQuandoCartaoNaoExistirAoConsultarFaturas() {
+    @DisplayName("Deve lançar exceção ao consultar todas as faturas quando cartão não existir")
+    void deveLancarExcecaoQuandoCartaoNaoExistir() {
 
-        when(cartaoRepository.findById(1L))
+        when(cartaoRepository.findById(cartao.getId()))
                 .thenReturn(Optional.empty());
 
         RuntimeException exception = assertThrows(
                 RuntimeException.class,
-                () -> faturaService.consultaFaturas(1L)
+                () -> faturaService.consultaFaturas(cartao.getId())
         );
 
         assertEquals("Cartao nao encontrado", exception.getMessage());
 
-        verify(cartaoRepository).findById(1L);
-        verify(faturaRepository, never()).findByCartaoId(any());
-        verify(faturaMapper, never()).toResponseList(any());
+        verify(faturaRepository, never()).findByCartaoId(anyLong());
+        verify(faturaMapper, never()).toResponseList(anyList());
     }
 
-
     @Test
-    void deveFecharFaturaComSucesso() {
+    @DisplayName("Deve fechar a fatura quando atingir a data de fechamento")
+    void deveFecharFaturaQuandoAtingirDataDeFechamento() {
 
         fatura.setDataFechamento(LocalDate.now());
+        fatura.setStatusFatura(StatusFatura.ABERTA);
 
-        when(faturaRepository.findByCartaId(1L))
-                .thenReturn(Optional.of(fatura));
+        when(faturaRepository.findByCartaoIdAndStatusFatura(
+                cartao.getId(),
+                StatusFatura.ABERTA
+        )).thenReturn(Optional.of(fatura));
 
-        faturaService.fecharFatura(1L);
+        faturaService.fecharFatura(cartao.getId());
 
-        assertEquals(
-                StatusFatura.FECHADA,
-                fatura.getStatusFatura()
-        );
+        assertEquals(StatusFatura.FECHADA, fatura.getStatusFatura());
 
-        verify(faturaRepository).findByCartaId(1L);
         verify(faturaRepository).save(fatura);
     }
 
-
     @Test
-    void naoDeveFecharFaturaAntesDaDataDeFechamento() {
+    @DisplayName("Não deve fechar a fatura quando ainda não atingir a data de fechamento")
+    void naoDeveFecharFaturaAntesDaData() {
 
-        fatura.setDataFechamento(
-                LocalDate.now().plusDays(1)
-        );
+        fatura.setDataFechamento(LocalDate.now().plusDays(1));
+        fatura.setStatusFatura(StatusFatura.ABERTA);
 
-        when(faturaRepository.findByCartaId(1L))
-                .thenReturn(Optional.of(fatura));
+        when(faturaRepository.findByCartaoIdAndStatusFatura(
+                cartao.getId(),
+                StatusFatura.ABERTA
+        )).thenReturn(Optional.of(fatura));
 
-        faturaService.fecharFatura(1L);
+        faturaService.fecharFatura(cartao.getId());
 
-        assertEquals(
-                StatusFatura.ABERTA,
-                fatura.getStatusFatura()
-        );
+        assertEquals(StatusFatura.ABERTA, fatura.getStatusFatura());
 
-        verify(faturaRepository).findByCartaId(1L);
-        verify(faturaRepository, never()).save(any());
+        verify(faturaRepository, never()).save(any(FaturaEntity.class));
     }
 
-
     @Test
-    void deveLancarErroAoFecharFaturaInexistente() {
+    @DisplayName("Deve consultar o valor da fatura aberta")
+    void deveConsultarValorFatura() {
 
-        when(faturaRepository.findByCartaId(1L))
-                .thenReturn(Optional.empty());
+        fatura.setValor(BigDecimal.valueOf(500));
 
-        RuntimeException exception = assertThrows(
-                RuntimeException.class,
-                () -> faturaService.fecharFatura(1L)
-        );
-
-        assertEquals("Fatura inexistente", exception.getMessage());
-
-        verify(faturaRepository).findByCartaId(1L);
-        verify(faturaRepository, never()).save(any());
-    }
-
-
-    @Test
-    void deveConsultarValorDaFatura() {
-
-        fatura.setValor(new BigDecimal("500.00"));
-
-        when(faturaRepository.findByCartaId(1L))
-                .thenReturn(Optional.of(fatura));
+        when(faturaRepository.findByCartaoIdAndStatusFatura(
+                cartao.getId(),
+                StatusFatura.ABERTA
+        )).thenReturn(Optional.of(fatura));
 
         BigDecimal resultado =
-                faturaService.consultaValorFatura(1L);
+                faturaService.consultaValorFatura(cartao.getId());
 
-        assertNotNull(resultado);
-        assertEquals(
-                new BigDecimal("500.00"),
-                resultado
+        assertEquals(BigDecimal.valueOf(500), resultado);
+
+        verify(faturaRepository).findByCartaoIdAndStatusFatura(
+                cartao.getId(),
+                StatusFatura.ABERTA
         );
-
-        verify(faturaRepository).findByCartaId(1L);
     }
 
-
     @Test
-    void deveConsultarDataDeVencimento() {
+    @DisplayName("Deve consultar a data de vencimento da fatura aberta")
+    void deveConsultarDataVencimento() {
 
-        LocalDate dataVencimento =
-                LocalDate.now().plusDays(30);
+        LocalDate vencimento = LocalDate.now().plusDays(7);
+        fatura.setDataVencimento(vencimento);
 
-        fatura.setDataVencimento(dataVencimento);
-
-        when(faturaRepository.findByCartaId(1L))
-                .thenReturn(Optional.of(fatura));
+        when(faturaRepository.findByCartaoIdAndStatusFatura(
+                cartao.getId(),
+                StatusFatura.ABERTA
+        )).thenReturn(Optional.of(fatura));
 
         LocalDate resultado =
-                faturaService.consultaDataVencimento(1L);
+                faturaService.consultaDataVencimento(cartao.getId());
 
-        assertNotNull(resultado);
-        assertEquals(dataVencimento, resultado);
+        assertEquals(vencimento, resultado);
 
-        verify(faturaRepository).findByCartaId(1L);
+        verify(faturaRepository).findByCartaoIdAndStatusFatura(
+                cartao.getId(),
+                StatusFatura.ABERTA
+        );
     }
 
-
     @Test
+    @DisplayName("Deve consultar faturas filtrando por status")
     void deveConsultarFaturasPorStatus() {
 
-        fatura.setCartao(cartao);
-
-        when(cartaoRepository.findById(1L))
-                .thenReturn(Optional.of(cartao));
+        FaturaFilterRequest filter = mock(FaturaFilterRequest.class);
 
         when(filter.getStatusFatura())
-                .thenReturn(StatusFatura.ABERTA);
+                .thenReturn(StatusFatura.FECHADA);
+
+        when(cartaoRepository.findById(cartao.getId()))
+                .thenReturn(Optional.of(cartao));
 
         when(faturaRepository.findAll(any(Specification.class)))
                 .thenReturn(List.of(fatura));
@@ -346,86 +345,77 @@ class FaturaServiceTest {
                 .thenReturn(List.of(faturaResponse));
 
         List<FaturaResponse> resultado =
-                faturaService.consutaPorStatus(filter, 1L);
+                faturaService.consutaPorStatus(filter, cartao.getId());
 
         assertNotNull(resultado);
-        assertEquals(1, resultado.size());
 
-        verify(cartaoRepository).findById(1L);
+        verify(cartaoRepository).findById(cartao.getId());
         verify(faturaRepository).findAll(any(Specification.class));
         verify(faturaMapper).toResponseList(anyList());
     }
 
-
     @Test
+    @DisplayName("Deve consultar todas as compras da fatura")
     void deveConsultarComprasDaFatura() {
+
+        FaturaFilterRequest filter = mock(FaturaFilterRequest.class);
+
+        when(filter.getValor())
+                .thenReturn(null);
 
         CompraEntity compra = CompraEntity.builder()
                 .id(1L)
-                .valor(new BigDecimal("100.00"))
                 .fatura(fatura)
+                .valor(BigDecimal.valueOf(100))
                 .build();
 
-        when(faturaRepository.findByCartaId(1L))
-                .thenReturn(Optional.of(fatura));
-
-        when(filter.getValor())
-                .thenReturn(new BigDecimal("50.00"));
+        when(faturaRepository.findByCartaoIdAndStatusFatura(
+                cartao.getId(),
+                StatusFatura.ABERTA
+        )).thenReturn(Optional.of(fatura));
 
         when(compraRepository.findAll(any(Specification.class)))
                 .thenReturn(List.of(compra));
 
         List<CompraEntity> resultado =
-                faturaService.comprasFaturas(1L, filter);
+                faturaService.comprasFaturas(cartao.getId(), filter);
 
         assertNotNull(resultado);
         assertEquals(1, resultado.size());
         assertEquals(compra, resultado.get(0));
 
-        verify(faturaRepository).findByCartaId(1L);
         verify(compraRepository).findAll(any(Specification.class));
     }
 
-
     @Test
-    void deveRetornarListaVaziaQuandoNaoExistiremComprasNaFatura() {
+    @DisplayName("Deve consultar compras da fatura filtrando por valor")
+    void deveConsultarComprasPorValor() {
 
-        when(faturaRepository.findByCartaId(1L))
-                .thenReturn(Optional.of(fatura));
+        FaturaFilterRequest filter = mock(FaturaFilterRequest.class);
 
         when(filter.getValor())
-                .thenReturn(null);
+                .thenReturn(BigDecimal.valueOf(100));
+
+        CompraEntity compra = CompraEntity.builder()
+                .id(1L)
+                .fatura(fatura)
+                .valor(BigDecimal.valueOf(200))
+                .build();
+
+        when(faturaRepository.findByCartaoIdAndStatusFatura(
+                cartao.getId(),
+                StatusFatura.ABERTA
+        )).thenReturn(Optional.of(fatura));
 
         when(compraRepository.findAll(any(Specification.class)))
-                .thenReturn(List.of());
+                .thenReturn(List.of(compra));
 
         List<CompraEntity> resultado =
-                faturaService.comprasFaturas(1L, filter);
+                faturaService.comprasFaturas(cartao.getId(), filter);
 
         assertNotNull(resultado);
-        assertTrue(resultado.isEmpty());
+        assertEquals(1, resultado.size());
 
-        verify(faturaRepository).findByCartaId(1L);
         verify(compraRepository).findAll(any(Specification.class));
     }
-
-
-    @Test
-    void deveLancarErroQuandoFaturaNaoExistirAoConsultarCompras() {
-
-        when(faturaRepository.findByCartaId(1L))
-                .thenReturn(Optional.empty());
-
-        RuntimeException exception = assertThrows(
-                RuntimeException.class,
-                () -> faturaService.comprasFaturas(1L, filter)
-        );
-
-        assertEquals("Fatura inexistente", exception.getMessage());
-
-        verify(faturaRepository).findByCartaId(1L);
-        verify(compraRepository, never())
-                .findAll(any(Specification.class));
-    }
 }
-

@@ -213,7 +213,7 @@ class ContaServiceTest {
 
         List<ContaResponse> responses = List.of(contaResponse);
 
-        when(contaRepository.findClienteId(1L))
+        when(contaRepository.findByClienteId(1L))
                 .thenReturn(contas);
 
         when(contaMapper.toResponseList(contas))
@@ -224,7 +224,7 @@ class ContaServiceTest {
         assertNotNull(resultado);
         assertEquals(responses, resultado);
 
-        verify(contaRepository).findClienteId(1L);
+        verify(contaRepository).findByClienteId(1L);
         verify(contaMapper).toResponseList(contas);
     }
 
@@ -235,7 +235,7 @@ class ContaServiceTest {
         List<ContaEntity> contas = List.of();
         List<ContaResponse> responses = List.of();
 
-        when(contaRepository.findClienteId(1L))
+        when(contaRepository.findByClienteId(1L))
                 .thenReturn(contas);
 
         when(contaMapper.toResponseList(contas))
@@ -246,7 +246,7 @@ class ContaServiceTest {
         assertNotNull(resultado);
         assertTrue(resultado.isEmpty());
 
-        verify(contaRepository).findClienteId(1L);
+        verify(contaRepository).findByClienteId(1L);
         verify(contaMapper).toResponseList(contas);
     }
 
@@ -269,7 +269,7 @@ class ContaServiceTest {
         List<ContaEntity> contas = List.of(conta, conta2);
         List<ContaResponse> responses = List.of(contaResponse, contaResponse2);
 
-        when(contaRepository.findClienteId(1L))
+        when(contaRepository.findByClienteId(1L))
                 .thenReturn(contas);
 
         when(contaMapper.toResponseList(contas))
@@ -280,7 +280,7 @@ class ContaServiceTest {
         assertNotNull(resultado);
         assertEquals(2, resultado.size());
 
-        verify(contaRepository).findClienteId(1L);
+        verify(contaRepository).findByClienteId(1L);
         verify(contaMapper).toResponseList(contas);
     }
 

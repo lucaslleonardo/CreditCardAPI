@@ -246,7 +246,7 @@ class CartaoServiceTest {
         when(clienteRepository.findById(1L))
                 .thenReturn(Optional.of(cliente));
 
-        when(contaRepository.findByContaYCliente(1L, 1L))
+        when(contaRepository.findByIdAndClienteId(1L, 1L))
                 .thenReturn(Optional.of(conta));
 
         when(cartaoRepository.findByContaId(1L))
@@ -261,7 +261,7 @@ class CartaoServiceTest {
         assertEquals(responses, resultado);
 
         verify(clienteRepository).findById(1L);
-        verify(contaRepository).findByContaYCliente(1L, 1L);
+        verify(contaRepository).findByIdAndClienteId(1L, 1L);
         verify(cartaoRepository).findByContaId(1L);
         verify(cartaoMapper).toResponseList(cartoes);
     }
@@ -286,7 +286,7 @@ class CartaoServiceTest {
         verify(clienteRepository).findById(1L);
 
         verify(contaRepository, never())
-                .findByContaYCliente(any(Long.class), any(Long.class));
+                .findByIdAndClienteId(any(Long.class), any(Long.class));
 
         verify(cartaoRepository, never())
                 .findByContaId(any(Long.class));
@@ -299,7 +299,7 @@ class CartaoServiceTest {
         when(clienteRepository.findById(1L))
                 .thenReturn(Optional.of(cliente));
 
-        when(contaRepository.findByContaYCliente(1L, 1L))
+        when(contaRepository.findByIdAndClienteId(1L, 1L))
                 .thenReturn(Optional.empty());
 
         RuntimeException exception = assertThrows(
@@ -313,7 +313,7 @@ class CartaoServiceTest {
         );
 
         verify(clienteRepository).findById(1L);
-        verify(contaRepository).findByContaYCliente(1L, 1L);
+        verify(contaRepository).findByIdAndClienteId(1L, 1L);
 
         verify(cartaoRepository, never())
                 .findByContaId(any(Long.class));
@@ -329,7 +329,7 @@ class CartaoServiceTest {
         when(clienteRepository.findById(1L))
                 .thenReturn(Optional.of(cliente));
 
-        when(contaRepository.findByContaYCliente(1L, 1L))
+        when(contaRepository.findByIdAndClienteId(1L, 1L))
                 .thenReturn(Optional.of(conta));
 
         when(cartaoRepository.findByContaId(1L))
@@ -374,7 +374,7 @@ class CartaoServiceTest {
         when(clienteRepository.findById(1L))
                 .thenReturn(Optional.of(cliente));
 
-        when(contaRepository.findByContaYCliente(1L, 1L))
+        when(contaRepository.findByIdAndClienteId(1L, 1L))
                 .thenReturn(Optional.of(conta));
 
         when(cartaoRepository.findByContaId(1L))

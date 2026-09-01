@@ -1,8 +1,6 @@
 package br.com.lucaslleonardo.CreditCardAPI.service;
 
 import br.com.lucaslleonardo.CreditCardAPI.database.entity.CartaoEntity;
-import br.com.lucaslleonardo.CreditCardAPI.database.entity.ClienteEntity;
-import br.com.lucaslleonardo.CreditCardAPI.database.entity.ContaEntity;
 import br.com.lucaslleonardo.CreditCardAPI.database.enums.StatusCartao;
 import br.com.lucaslleonardo.CreditCardAPI.dto.dtoRequest.dtoPatch.CartaoPatchRequest;
 import br.com.lucaslleonardo.CreditCardAPI.dto.dtoRequest.dtoPost.CartaoPostRequest;
@@ -82,7 +80,7 @@ public class CartaoService {
 
         log.info("Verificando se a conta {} pertence ao cliente {}", contaId, clienteId);
 
-        contaRepository.findByContaYCliente(contaId, clienteId)
+        contaRepository.findByIdAndClienteId(contaId, clienteId)
                 .orElseThrow(() -> { log.warn("Conta {} nao encontrada para o cliente {}", contaId, clienteId);
                     return new RuntimeException("Conta nao encontrada");
                 });
