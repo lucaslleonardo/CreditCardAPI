@@ -14,15 +14,5 @@ public class FaturaSpecification {
     }
 
 
-    public static Specification<FaturaEntity> valorMaiorQue(BigDecimal valor){
-        return (root, query, criteriaBuilder) ->
-                criteriaBuilder.greaterThanOrEqualTo(root.get("valor"), valor);
-    }
-
-    public static Specification<FaturaEntity> valorMenorQue(BigDecimal valor){
-        return (root, query, criteriaBuilder) ->
-                criteriaBuilder.lessThanOrEqualTo(root.get("valor"), valor);
-    }
-
 
 }

@@ -13,6 +13,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @Setter
@@ -27,10 +28,6 @@ public class FaturaPostRequest {
     private LocalDate dataFechamento;
 
     @NotNull
-    @JsonFormat(pattern = "dd/MM/yyyy" )
-    private LocalDate dataVencimento;
-
-    @NotNull
     private BigDecimal valor;
 
     @NotBlank
@@ -40,8 +37,8 @@ public class FaturaPostRequest {
     private CartaoEntity cartao;
 
     @NotBlank
-    private CompraEntity compra;
+    private List<CompraEntity> compra;
 
     @NotBlank
-    private PagamentoEntity pagamento;
+    private List<PagamentoEntity> pagamento;
 }

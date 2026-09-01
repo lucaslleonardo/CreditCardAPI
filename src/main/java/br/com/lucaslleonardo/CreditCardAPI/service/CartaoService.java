@@ -72,7 +72,6 @@ public class CartaoService {
 
     public List<CartaoResponse> cartoesPorConta(long contaId, long clienteId) {
 
-        log.info("Consultando cartoes da conta {} para o cliente {}", contaId, clienteId);
 
         log.info("Verificando existencia do cliente de ID {}", clienteId);
 
