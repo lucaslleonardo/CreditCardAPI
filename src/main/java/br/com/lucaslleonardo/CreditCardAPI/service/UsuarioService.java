@@ -9,6 +9,7 @@ import br.com.lucaslleonardo.CreditCardAPI.repository.IUsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,6 +20,7 @@ public class UsuarioService {
 
     private final IUsuarioRepository usuarioRepository;
     private final UsuarioMapper usuarioMapper;
+    private final PasswordEncoder passwordEncoder;
 
 
     public static Logger log = LoggerFactory.getLogger(UsuarioService.class);
@@ -33,6 +35,8 @@ public class UsuarioService {
 
         log.info("Cadastrando o usuario com email {}",usuarioPostRequest.getEmail());
         UsuarioEntity usuarioEntity = usuarioMapper.toEntity(usuarioPostRequest);
+
+        usuarioEntity.setSenha(passwordEncoder.encode(usuarioPostRequest.getSenha()));
 
         try{
             UsuarioEntity savedUsuario =  usuarioRepository.save(usuarioEntity);
@@ -54,7 +58,7 @@ public class UsuarioService {
         log.info("Pega as novas informações");
         usuario.setEmail(usuarioPatchRequest.getEmail());
         usuario.setNome(usuarioPatchRequest.getNome());
-        usuario.setSenha(usuarioPatchRequest.getSenha());
+        usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
 
         try{
             usuarioMapper.update(usuarioPatchRequest ,usuario);

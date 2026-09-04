@@ -47,7 +47,7 @@ public class CompraController {
         return compraService.encontrarCompras(compraFilterRequest);
     }
 
-    @PutMapping
+    @PutMapping("/cancelar/{id}")
     @ResponseStatus(HttpStatus.OK)
     public CompraResponse cancelarCompra(@PathVariable Long id){
         log.info("requisição para atualizar status da compra");

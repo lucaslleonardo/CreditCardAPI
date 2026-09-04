@@ -13,6 +13,6 @@ public interface IFaturaRepository extends JpaRepository<FaturaEntity, Long >, J
     Optional <FaturaEntity> findByCartaoContaId(Long contaId);
     List<FaturaEntity> findByCartaoId (Long cartaoId);
     Optional<FaturaEntity> findByCartaoIdAndStatusFatura(Long cartaoId, StatusFatura statusFatura);
-
+    Optional<FaturaEntity> findByCartaoIdAndStatusFaturaIn(long cartaoId, List<StatusFatura> statusFaturas);
 
 }

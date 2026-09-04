@@ -38,7 +38,7 @@ public class ClienteController {
         return clienteService.findAll();
     }
 
-    @GetMapping
+    @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ClienteResponse findById(@RequestParam @Valid Long id) {
         log.info("requisição para encontrar cliente específico");
@@ -52,7 +52,7 @@ public class ClienteController {
         clienteService.update(clientePatchRequest, id);
     }
 
-    @DeleteMapping
+    @DeleteMapping("/delete/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteById(@PathVariable Long id) {
         log.info("requisição para deletar cliente");

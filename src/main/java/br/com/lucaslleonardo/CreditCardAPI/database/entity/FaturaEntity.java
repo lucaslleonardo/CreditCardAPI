@@ -26,6 +26,8 @@ public class FaturaEntity {
 
     private LocalDate dataVencimento;
 
+    private boolean jurosAplicado;
+
     private BigDecimal valor;
 
     private StatusFatura statusFatura;

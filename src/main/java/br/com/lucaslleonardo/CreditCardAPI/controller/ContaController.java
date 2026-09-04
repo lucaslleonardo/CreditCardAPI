@@ -46,14 +46,14 @@ public class ContaController {
     }
 
 
-    @PutMapping("/{clienteId/{id}/atualizar")
+    @PutMapping("/{clienteId}/{id}/atualizar")
     @ResponseStatus(HttpStatus.OK)
     public void update(@PathVariable long id,@RequestBody @Valid ContaPatchRequest contaPatchRequest){
        log.info("requisicao para atualizar conta do Cliente");
        contaService.update(id,contaPatchRequest);
     }
 
-    @DeleteMapping("/{clienteId/{id}/delete")
+    @DeleteMapping("/{clienteId}/{id}/delete")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable long id){
         log.info("requisicao para deletar conta do Cliente");
