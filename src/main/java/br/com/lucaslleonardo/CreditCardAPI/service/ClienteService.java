@@ -79,7 +79,7 @@ public class ClienteService {
         log.info("Busca cliente por id: {} no sistema",id );
         ClienteEntity cliente = clienteRepository.findById(id)
                 .orElseThrow(() -> {log.error("Nao encontrou cliente no sistema");
-                    return new CartaoNaoEncontradoException("Cliente nao encontrado");
+                    return new ClienteNaoEncontradoException("Cliente nao encontrado");
                 });
 
         return clienteMapper.toResponse(cliente);

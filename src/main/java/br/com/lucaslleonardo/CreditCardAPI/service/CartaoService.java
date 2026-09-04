@@ -7,6 +7,7 @@ import br.com.lucaslleonardo.CreditCardAPI.dto.dtoRequest.dtoPost.CartaoPostRequ
 import br.com.lucaslleonardo.CreditCardAPI.dto.dtoResponse.CartaoResponse;
 import br.com.lucaslleonardo.CreditCardAPI.exception.CartaoJaExistenteException;
 import br.com.lucaslleonardo.CreditCardAPI.exception.CartaoNaoEncontradoException;
+import br.com.lucaslleonardo.CreditCardAPI.exception.ClienteNaoEncontradoException;
 import br.com.lucaslleonardo.CreditCardAPI.exception.ContaNaoEncontradaException;
 import br.com.lucaslleonardo.CreditCardAPI.mappers.CartaoMapper;
 import br.com.lucaslleonardo.CreditCardAPI.repository.ICartaoRepository;
@@ -78,7 +79,7 @@ public class CartaoService {
 
         clienteRepository.findById(clienteId)
                 .orElseThrow(() -> {log.warn("Cliente de ID {} nao encontrado", clienteId);
-                    return new CartaoNaoEncontradoException("Cliente nao encontrado");
+                    return new ClienteNaoEncontradoException("Cliente nao encontrado");
                 });
 
         log.info("Verificando se a conta {} pertence ao cliente {}", contaId, clienteId);
