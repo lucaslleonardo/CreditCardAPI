@@ -5,6 +5,9 @@ import br.com.lucaslleonardo.CreditCardAPI.dto.dtoRequest.dtoPatch.UsuarioPatchR
 import br.com.lucaslleonardo.CreditCardAPI.dto.dtoRequest.dtoPost.UsuarioPostRequest;
 import br.com.lucaslleonardo.CreditCardAPI.dto.dtoResponse.UsuarioResponse;
 import br.com.lucaslleonardo.CreditCardAPI.service.UsuarioService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
@@ -20,6 +23,7 @@ import java.util.List;
 @Validated
 @RestController
 @RequestMapping("/usuario")
+@Tag(name = "Usuario", description = "Operações relacionadas ao usuario")
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
@@ -28,6 +32,8 @@ public class UsuarioController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Cadastra o usuario")
+    @ApiResponse(responseCode = "409", description = "Usuario ja cadastrado no sistema")
     public UsuarioResponse save(@Valid @RequestBody UsuarioPostRequest usuarioPostRequest) {
         log.info("requisição para criar usuario");
         return usuarioService.save(usuarioPostRequest);
@@ -35,6 +41,8 @@ public class UsuarioController {
 
     @GetMapping("/TodosUsuarios")
     @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Lista todos os usuarios")
+    @ApiResponse(responseCode = "404", description = "Usuario nao encontrado")
     public List<UsuarioResponse> findAll() {
         log.info("requisição para listar todos usuarios");
         return usuarioService.findAll();
@@ -42,6 +50,8 @@ public class UsuarioController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Busca um usuario")
+    @ApiResponse(responseCode = "404", description = "Usuario nao encontrado")
     public UsuarioResponse findById(@PathVariable Long id) {
         log.info("requisição para encontrar cliente específico");
         return usuarioService.findById(id);
@@ -49,12 +59,16 @@ public class UsuarioController {
 
     @PutMapping("/{id}/atualizar")
     @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Atualiza dados do usuario")
+    @ApiResponse(responseCode = "404", description = "Usuario nao encontrado")
     public void atualizar(@PathVariable Long id, @RequestBody @Valid UsuarioPatchRequest usuarioPatchRequest) {
         log.info("requisição para atualizar informações do usuario");
         usuarioService.update(usuarioPatchRequest, id);
     }
 
     @DeleteMapping("/delete/{id}")
+    @Operation(summary = "")
+    @ApiResponse(responseCode = "404", description = "Usuario nao encontrado")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
         log.info("requisição para deletar usuario");

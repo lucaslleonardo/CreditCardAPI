@@ -4,6 +4,9 @@ import br.com.lucaslleonardo.CreditCardAPI.dto.dtoRequest.dtoPatch.ClientePatchR
 import br.com.lucaslleonardo.CreditCardAPI.dto.dtoRequest.dtoPost.ClientePostRequest;
 import br.com.lucaslleonardo.CreditCardAPI.dto.dtoResponse.ClienteResponse;
 import br.com.lucaslleonardo.CreditCardAPI.service.ClienteService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -18,6 +21,7 @@ import java.util.List;
 @Validated
 @RestController
 @RequestMapping("/cliente")
+@Tag(name = "Clientes", description = "Operações relacionadas ao cliente")
 public class ClienteController {
 
     public static Logger log = LoggerFactory.getLogger(ClienteController.class);
@@ -26,6 +30,8 @@ public class ClienteController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Cadastra o cliente")
+    @ApiResponse(responseCode = "409", description = "Cliente ja cadastrado")
     public ClienteResponse save(@RequestBody @Valid ClientePostRequest clientePostRequest) {
         log.info("requisição para criar cliente");
         return clienteService.save(clientePostRequest);
@@ -33,6 +39,7 @@ public class ClienteController {
 
     @GetMapping("/listaClientes")
     @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "retorna todos clientes")
     public List<ClienteResponse> findAll() {
         log.info("requisição para listar todos clientes");
         return clienteService.findAll();
@@ -40,6 +47,8 @@ public class ClienteController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "retorna cliente")
+    @ApiResponse(responseCode = "404", description = "Cliente nao encontrado")
     public ClienteResponse findById(@RequestParam @Valid Long id) {
         log.info("requisição para encontrar cliente específico");
         return clienteService.findById(id);
@@ -47,6 +56,8 @@ public class ClienteController {
 
     @PutMapping("/{id}/atualizar")
     @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "atualiza dados cliente")
+    @ApiResponse(responseCode = "404", description = "Cliente nao encontrado")
     public void update(@RequestBody @Valid ClientePatchRequest clientePatchRequest, @PathVariable Long id) {
         log.info("requisição para atualizar dados do cliente");
         clienteService.update(clientePatchRequest, id);
@@ -54,6 +65,8 @@ public class ClienteController {
 
     @DeleteMapping("/delete/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "Deleta cliente")
+    @ApiResponse(responseCode = "404", description = "Cliente nao encontrado")
     public void deleteById(@PathVariable Long id) {
         log.info("requisição para deletar cliente");
         clienteService.delete(id);
