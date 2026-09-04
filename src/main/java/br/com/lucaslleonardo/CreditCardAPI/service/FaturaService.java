@@ -8,6 +8,9 @@ import br.com.lucaslleonardo.CreditCardAPI.database.specification.FaturaFilterRe
 import br.com.lucaslleonardo.CreditCardAPI.database.specification.FaturaSpecification;
 import br.com.lucaslleonardo.CreditCardAPI.dto.dtoRequest.dtoPost.FaturaPostRequest;
 import br.com.lucaslleonardo.CreditCardAPI.dto.dtoResponse.FaturaResponse;
+import br.com.lucaslleonardo.CreditCardAPI.exception.CartaoNaoEncontradoException;
+import br.com.lucaslleonardo.CreditCardAPI.exception.FaturaJaCadastradaException;
+import br.com.lucaslleonardo.CreditCardAPI.exception.FaturaNaoEncontradaException;
 import br.com.lucaslleonardo.CreditCardAPI.mappers.FaturaMapper;
 import br.com.lucaslleonardo.CreditCardAPI.repository.ICartaoRepository;
 import br.com.lucaslleonardo.CreditCardAPI.repository.ICompraRepository;
@@ -39,7 +42,7 @@ public class FaturaService {
 
         if (faturaRepository.findByCartaoIdAndStatusFatura(cartaoId,StatusFatura.ABERTA).isPresent()) {
             log.warn("Ja existe uma fatura para o cartao de ID {}", cartaoId);
-            throw new RuntimeException("Fatura ja cadastrada");
+            throw new FaturaJaCadastradaException("Fatura ja cadastrada");
         }
 
         FaturaEntity faturaEntity = faturaMapper.toEntity(faturaPostRequest);
@@ -70,7 +73,7 @@ public class FaturaService {
         FaturaEntity faturaEntity = faturaRepository.findByCartaoIdAndStatusFatura(cartaoId,StatusFatura.ABERTA)
                 .orElseThrow(() -> { log.warn("Fatura nao encontrada para o cartao de ID {}", cartaoId);
 
-                    return new RuntimeException("Fatura nao encontrada");
+                    return new FaturaNaoEncontradaException("Fatura nao encontrada");
                 });
 
         log.info("Fatura de ID {} encontrada com sucesso", faturaEntity.getId());
@@ -85,7 +88,7 @@ public class FaturaService {
         cartaoRepository.findById(cartaoId)
                 .orElseThrow(() -> {log.warn("Cartao de ID {} nao encontrado", cartaoId);
 
-                    return new RuntimeException("Cartao nao encontrado");
+                    return new CartaoNaoEncontradoException("Cartao nao encontrado");
                 });
 
         List<FaturaEntity> faturas = faturaRepository.findByCartaoId(cartaoId);
@@ -103,7 +106,7 @@ public class FaturaService {
                 .orElseThrow(() -> {
                     log.warn("Fatura nao encontrada para o cartao de ID {}", cartaoId);
 
-                    return new RuntimeException("Fatura inexistente");
+                    return new FaturaNaoEncontradaException("Fatura inexistente");
                 });
 
         if (faturaEntity.getDataFechamento().isEqual(LocalDate.now())) {
@@ -130,7 +133,7 @@ public class FaturaService {
                 .orElseThrow(() -> {
                     log.warn("Fatura nao encontrada para o cartao de ID {}", cartaoId);
 
-                    return new RuntimeException("Fatura inexistente");
+                    return new FaturaNaoEncontradaException("Fatura inexistente");
                 });
 
         log.info("Valor da fatura de ID {}: {}", faturaEntity.getId(), faturaEntity.getValor());
@@ -147,7 +150,7 @@ public class FaturaService {
                 .orElseThrow(() -> {
                     log.warn("Fatura nao encontrada para o cartao de ID {}", cartaoId);
 
-                    return new RuntimeException("Fatura inexistente");
+                    return new FaturaNaoEncontradaException("Fatura inexistente");
                 });
 
         log.info("Data de vencimento da fatura de ID {}: {}", faturaEntity.getId(), faturaEntity.getDataVencimento());
@@ -163,7 +166,7 @@ public class FaturaService {
 
         cartaoRepository.findById(cartaoId)
                 .orElseThrow(() -> {log.warn("Cartao de ID {} nao encontrado", cartaoId);
-                    return new RuntimeException("Cartao nao encontrado");
+                    return new CartaoNaoEncontradoException("Cartao nao encontrado");
                 });
 
         Specification<FaturaEntity> specification = Specification.allOf();
@@ -193,7 +196,7 @@ public class FaturaService {
                 .orElseThrow(() -> {
                     log.warn("Fatura nao encontrada para o cartao de ID {}", cartaoId);
 
-                    return new RuntimeException("Fatura inexistente");
+                    return new FaturaNaoEncontradaException("Fatura inexistente");
                 });
 
         Specification<CompraEntity> specification = Specification.allOf();

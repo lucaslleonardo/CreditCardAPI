@@ -4,6 +4,8 @@ import br.com.lucaslleonardo.CreditCardAPI.database.entity.UsuarioEntity;
 import br.com.lucaslleonardo.CreditCardAPI.dto.dtoRequest.dtoPatch.UsuarioPatchRequest;
 import br.com.lucaslleonardo.CreditCardAPI.dto.dtoRequest.dtoPost.UsuarioPostRequest;
 import br.com.lucaslleonardo.CreditCardAPI.dto.dtoResponse.UsuarioResponse;
+import br.com.lucaslleonardo.CreditCardAPI.exception.NotFoundException;
+import br.com.lucaslleonardo.CreditCardAPI.exception.UsuarioJaExisteException;
 import br.com.lucaslleonardo.CreditCardAPI.mappers.UsuarioMapper;
 import br.com.lucaslleonardo.CreditCardAPI.repository.IUsuarioRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +32,7 @@ public class UsuarioService {
 
        log.info("Verifica se o email ja foi usado em outra conta");
         if(usuarioRepository.findByEmail(usuarioPostRequest.getEmail()).isPresent()){
-            throw new RuntimeException("Email ja utilizado");
+            throw new UsuarioJaExisteException("Email ja utilizado");
         }
 
         log.info("Cadastrando o usuario com email {}",usuarioPostRequest.getEmail());
@@ -52,7 +54,7 @@ public class UsuarioService {
         log.info("Procura o usuario no banco");
         UsuarioEntity usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> { log.warn("Erro ao procurar o usuario no banco");
-                    return new RuntimeException("Usuario nao encontrado");
+                    return new NotFoundException("Usuario nao encontrado");
                 });
 
         log.info("Pega as novas informações");
@@ -79,7 +81,7 @@ public class UsuarioService {
         log.info("Verifica se o usario esta cadastrado no banco");
         UsuarioEntity usuario = usuarioRepository.findById(id)
                 .orElseThrow(() ->  { log.warn("Usuario nao encontrado");
-                    return new RuntimeException("Usuario nao encontrado");
+                    return new NotFoundException("Usuario nao encontrado");
                 });
 
         log.info("retorna o usuario {}",usuario);
@@ -90,7 +92,7 @@ public class UsuarioService {
         log.info("Verifica se o usario esta cadastrado no banco");
         UsuarioEntity usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> { log.warn("Usuario nao encontrado");
-                    return new RuntimeException("Usuario nao encontrado");
+                    return new NotFoundException("Usuario nao encontrado");
                 });
 
         log.info("Deleta o usuario {}",usuario);

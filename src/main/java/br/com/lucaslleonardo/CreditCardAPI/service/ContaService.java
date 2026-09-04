@@ -5,6 +5,8 @@ import br.com.lucaslleonardo.CreditCardAPI.database.enums.StatusConta;
 import br.com.lucaslleonardo.CreditCardAPI.dto.dtoRequest.dtoPatch.ContaPatchRequest;
 import br.com.lucaslleonardo.CreditCardAPI.dto.dtoRequest.dtoPost.ContaPostRequest;
 import br.com.lucaslleonardo.CreditCardAPI.dto.dtoResponse.ContaResponse;
+import br.com.lucaslleonardo.CreditCardAPI.exception.ContaJaExisteException;
+import br.com.lucaslleonardo.CreditCardAPI.exception.ContaNaoEncontradaException;
 import br.com.lucaslleonardo.CreditCardAPI.mappers.ContaMapper;
 import br.com.lucaslleonardo.CreditCardAPI.repository.IContaRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +28,7 @@ public class ContaService {
     public ContaResponse save(ContaPostRequest contaPostRequest) {
         log.info("procura se a conta ja foi criada com o numero {}",contaPostRequest.getNumeroConta());
         if(contaRepository.findByNumeroConta(contaPostRequest.getNumeroConta()).isPresent()) {
-            throw new RuntimeException("Conta ja cadastrada com esse numero");
+            throw new ContaJaExisteException("Conta ja cadastrada com esse numero");
         }
 
         ContaEntity contaEntity = contaMapper.toEntity(contaPostRequest);
@@ -45,7 +47,7 @@ public class ContaService {
     public ContaResponse verUmaConta(long id) {
         log.info("procura a conta de id {}",id);
         ContaEntity contaEntity = contaRepository.findById(id)
-                .orElseThrow(()-> new RuntimeException("Conta nao encontrada"));
+                .orElseThrow(()-> new ContaNaoEncontradaException("Conta nao encontrada"));
 
         log.info("Retorna conta de id {}",id);
         return contaMapper.toResponse(contaEntity);
@@ -65,7 +67,7 @@ public class ContaService {
 
         log.info("procura a conta de id {}",id);
         ContaEntity conta = contaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Conta nao encontrada"));
+                .orElseThrow(() -> new ContaNaoEncontradaException("Conta nao encontrada"));
 
         log.info("atualiza status de conta do id {}",id);
         conta.setStatusConta(contaPatchRequest.getStatus());
@@ -82,7 +84,7 @@ public class ContaService {
     public void delete(long id) {
         log.info("procura a conta de id {}",id);
         ContaEntity conta = contaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Conta nao encontrada"));
+                .orElseThrow(() -> new ContaNaoEncontradaException("Conta nao encontrada"));
         log.info("remova conta do id {}",id);
         contaRepository.delete(conta);
 

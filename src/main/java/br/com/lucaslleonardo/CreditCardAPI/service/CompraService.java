@@ -11,6 +11,7 @@ import br.com.lucaslleonardo.CreditCardAPI.database.specification.CompraFilterRe
 import br.com.lucaslleonardo.CreditCardAPI.database.specification.CompraSpecification;
 import br.com.lucaslleonardo.CreditCardAPI.dto.dtoRequest.dtoPost.CompraPostRequest;
 import br.com.lucaslleonardo.CreditCardAPI.dto.dtoResponse.CompraResponse;
+import br.com.lucaslleonardo.CreditCardAPI.exception.*;
 import br.com.lucaslleonardo.CreditCardAPI.mappers.CompraMapper;
 import br.com.lucaslleonardo.CreditCardAPI.repository.ICartaoRepository;
 import br.com.lucaslleonardo.CreditCardAPI.repository.ICompraRepository;
@@ -42,14 +43,14 @@ public class CompraService {
 
         CartaoEntity cartaoEntity = cartaoRepository.findById(cartaoId)
                 .orElseThrow(() -> { log.warn("Cartao de ID {} nao encontrado", cartaoId);
-                    return new RuntimeException("Cartao nao encontrado");
+                    return new CartaoNaoEncontradoException("Cartao nao encontrado");
                 });
 
         log.info("Cartao de ID {} encontrado", cartaoId);
 
         if (cartaoEntity.getStatusCartao() != StatusCartao.ATIVO) {
             log.warn("Compra recusada: cartao de ID {} nao esta ativo", cartaoId);
-            throw new RuntimeException("Cartao nao ativo");
+            throw new CartaoNaoAtivoException("Cartao nao ativo");
         }
 
         log.info("Cartao de ID {} esta ativo", cartaoId);
@@ -60,12 +61,12 @@ public class CompraService {
 
         FaturaEntity faturaEntity = faturaRepository.findByCartaoContaId(conta.getId())
                 .orElseThrow(() -> { log.warn("Fatura nao encontrada para a conta de ID {}", conta.getId());
-                    return new RuntimeException("Fatura nao encontrada");
+                    return new FaturaNaoEncontradaException("Fatura nao encontrada");
                 });
 
         if (faturaEntity.getStatusFatura() != StatusFatura.ABERTA) {
             log.warn("Compra recusada: fatura da conta de ID {} nao esta aberta", conta.getId());
-            throw new RuntimeException("Fatura nao esta aberta");
+            throw new FaturaNaoAbertaException("Fatura nao esta aberta");
         }
 
         log.info("Fatura da conta de ID {} esta aberta", conta.getId());
@@ -113,7 +114,7 @@ public class CompraService {
 
         CompraEntity compraEntity = compraRepository.findById(id)
                 .orElseThrow(() -> {log.warn("Compra de ID {} nao encontrada", id);
-                    return new RuntimeException("Compra nao encontrada");
+                    return new CompraNaoEncontradaException("Compra nao encontrada");
                 });
 
         log.info("Compra de ID {} encontrada com sucesso", id);
@@ -166,7 +167,7 @@ public class CompraService {
 
         CompraEntity compraEntity = compraRepository.findById(id)
                 .orElseThrow(() -> {log.warn("Compra de ID {} nao encontrada", id);
-                    return new RuntimeException("Compra nao encontrada");
+                    return new CompraNaoEncontradaException("Compra nao encontrada");
                 });
 
         CartaoEntity cartaoEntity = compraEntity.getCartao();
@@ -179,7 +180,7 @@ public class CompraService {
 
         FaturaEntity faturaEntity = faturaRepository.findByCartaoContaId(contaEntity.getId())
                 .orElseThrow(() -> {log.warn("Fatura nao encontrada para a conta de ID {}", contaEntity.getId());
-                    return new RuntimeException("Fatura nao encontrada");
+                    return new FaturaNaoEncontradaException("Fatura nao encontrada");
                 });
 
         faturaEntity.setValor(faturaEntity.getValor().subtract(compraEntity.getValor()));

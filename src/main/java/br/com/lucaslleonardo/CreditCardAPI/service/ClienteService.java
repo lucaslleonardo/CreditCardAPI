@@ -5,6 +5,9 @@ import br.com.lucaslleonardo.CreditCardAPI.database.enums.StatusCliente;
 import br.com.lucaslleonardo.CreditCardAPI.dto.dtoRequest.dtoPatch.ClientePatchRequest;
 import br.com.lucaslleonardo.CreditCardAPI.dto.dtoRequest.dtoPost.ClientePostRequest;
 import br.com.lucaslleonardo.CreditCardAPI.dto.dtoResponse.ClienteResponse;
+import br.com.lucaslleonardo.CreditCardAPI.exception.CartaoNaoEncontradoException;
+import br.com.lucaslleonardo.CreditCardAPI.exception.ClienteJaCadastradoException;
+import br.com.lucaslleonardo.CreditCardAPI.exception.ClienteNaoEncontradoException;
 import br.com.lucaslleonardo.CreditCardAPI.mappers.ClienteMapper;
 import br.com.lucaslleonardo.CreditCardAPI.repository.IClienteRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +30,7 @@ public class ClienteService {
 
         log.info("procura se o usuario de email {} ja esta registrado", clientePostRequest.getEmail());
         if (clienteRepository.findByEmail(clientePostRequest.getEmail()).isPresent()) {
-            throw new RuntimeException("Cliente ja cadastrado com esse email");
+            throw new ClienteJaCadastradoException("Cliente ja cadastrado com esse email");
         }
 
         ClienteEntity clienteEntity = clienteMapper.toEntity(clientePostRequest);
@@ -48,7 +51,7 @@ public class ClienteService {
         log.info("Atualizar informações sobre usuario de id: {}",id);
         ClienteEntity cliente = clienteRepository.findById(id)
                 .orElseThrow(() -> { log.warn("Nao encontrou cliente no sistema");
-                    return new RuntimeException("Cliente nao encontrado");
+                    return new ClienteNaoEncontradoException("Cliente nao encontrado");
                 });
 
         log.info("Pega as novas informações do cliente");
@@ -76,7 +79,7 @@ public class ClienteService {
         log.info("Busca cliente por id: {} no sistema",id );
         ClienteEntity cliente = clienteRepository.findById(id)
                 .orElseThrow(() -> {log.error("Nao encontrou cliente no sistema");
-                    return new RuntimeException("Cliente nao encontrado");
+                    return new CartaoNaoEncontradoException("Cliente nao encontrado");
                 });
 
         return clienteMapper.toResponse(cliente);
@@ -86,7 +89,7 @@ public class ClienteService {
         log.info("Removendo cliente por id: {} no sistema",id);
         ClienteEntity cliente = clienteRepository.findById(id)
                 .orElseThrow(() -> { log.warn("Nao encontrou cliente no sistema");
-                    return new RuntimeException("Cliente nao encontrado");
+                    return new ClienteNaoEncontradoException("Cliente nao encontrado");
                 });
         clienteRepository.delete(cliente);
     }

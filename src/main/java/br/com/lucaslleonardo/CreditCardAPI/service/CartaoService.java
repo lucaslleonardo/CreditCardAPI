@@ -5,6 +5,9 @@ import br.com.lucaslleonardo.CreditCardAPI.database.enums.StatusCartao;
 import br.com.lucaslleonardo.CreditCardAPI.dto.dtoRequest.dtoPatch.CartaoPatchRequest;
 import br.com.lucaslleonardo.CreditCardAPI.dto.dtoRequest.dtoPost.CartaoPostRequest;
 import br.com.lucaslleonardo.CreditCardAPI.dto.dtoResponse.CartaoResponse;
+import br.com.lucaslleonardo.CreditCardAPI.exception.CartaoJaExistenteException;
+import br.com.lucaslleonardo.CreditCardAPI.exception.CartaoNaoEncontradoException;
+import br.com.lucaslleonardo.CreditCardAPI.exception.ContaNaoEncontradaException;
 import br.com.lucaslleonardo.CreditCardAPI.mappers.CartaoMapper;
 import br.com.lucaslleonardo.CreditCardAPI.repository.ICartaoRepository;
 import br.com.lucaslleonardo.CreditCardAPI.repository.IClienteRepository;
@@ -34,7 +37,7 @@ public class CartaoService {
         if (cartaoRepository.findByNumeroCartao(cartaoPostRequest.getNumeroCartao()).isPresent()) {
 
             log.warn("Cartao de numero {} ja esta cadastrado", cartaoPostRequest.getNumeroCartao());
-            throw new RuntimeException("Cartao ja cadastrado");
+            throw new CartaoJaExistenteException("Cartao ja cadastrado");
         }
 
         CartaoEntity cartaoEntity = cartaoMapper.toEntity(cartaoPostRequest);
@@ -60,7 +63,7 @@ public class CartaoService {
         CartaoEntity cartaoEntity = cartaoRepository.findById(id)
                 .orElseThrow(() -> {log.warn("Cartao de ID {} nao encontrado", id);
 
-                    return new RuntimeException("Cartao nao encontrado");
+                    return new CartaoNaoEncontradoException("Cartao nao encontrado");
                 });
 
         log.info("Cartao de ID {} encontrado com sucesso", id);
@@ -75,14 +78,14 @@ public class CartaoService {
 
         clienteRepository.findById(clienteId)
                 .orElseThrow(() -> {log.warn("Cliente de ID {} nao encontrado", clienteId);
-                    return new RuntimeException("Cliente nao encontrado");
+                    return new CartaoNaoEncontradoException("Cliente nao encontrado");
                 });
 
         log.info("Verificando se a conta {} pertence ao cliente {}", contaId, clienteId);
 
         contaRepository.findByIdAndClienteId(contaId, clienteId)
                 .orElseThrow(() -> { log.warn("Conta {} nao encontrada para o cliente {}", contaId, clienteId);
-                    return new RuntimeException("Conta nao encontrada");
+                    return new ContaNaoEncontradaException("Conta nao encontrada");
                 });
 
         List<CartaoEntity> cartaoEntities = cartaoRepository.findByContaId(contaId);
@@ -98,7 +101,7 @@ public class CartaoService {
         log.info("Iniciando atualizacao do cartao de ID {}", id);
         CartaoEntity cartaoEntity = cartaoRepository.findById(id)
                 .orElseThrow(() -> { log.warn("Cartao de ID {} nao encontrado para atualizacao", id);
-                    return new RuntimeException("Cartao nao encontrado");
+                    return new CartaoNaoEncontradoException("Cartao nao encontrado");
                 });
 
         log.info("Alterando status do cartao de ID {} para {}", id, cartaoPatchRequest.getStatusCartao());
@@ -120,7 +123,7 @@ public class CartaoService {
         log.info("Iniciando exclusao do cartao de ID {}", id);
         if (cartaoRepository.findById(id).isEmpty()) {
             log.warn("Tentativa de excluir cartao de ID {} que nao existe", id);
-            throw new RuntimeException("Cartao nao encontrado");
+            throw new CartaoNaoEncontradoException("Cartao nao encontrado");
         }
 
         try {
@@ -138,7 +141,7 @@ public class CartaoService {
         log.info("Consultando limite total do cartao de ID {}", id);
         CartaoEntity cartaoEntity = cartaoRepository.findById(id)
                 .orElseThrow(() -> { log.warn("Cartao de ID {} nao encontrado", id);
-                    return new RuntimeException("Cartao nao encontrado");
+                    return new CartaoNaoEncontradoException("Cartao nao encontrado");
                 });
 
         log.info("Limite total do cartao de ID {}: {}", id, cartaoEntity.getLimite());
@@ -151,7 +154,7 @@ public class CartaoService {
         log.info("Consultando limite disponivel do cartao de ID {}", id);
         CartaoEntity cartaoEntity = cartaoRepository.findById(id)
                 .orElseThrow(() -> {log.warn("Cartao de ID {} nao encontrado", id);
-                    return new RuntimeException("Cartao nao encontrado");
+                    return new CartaoNaoEncontradoException("Cartao nao encontrado");
                 });
 
         log.info("Limite disponivel do cartao de ID {}: {}", id, cartaoEntity.getLimiteDisponivel());

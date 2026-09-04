@@ -7,6 +7,8 @@ import br.com.lucaslleonardo.CreditCardAPI.database.entity.PagamentoEntity;
 import br.com.lucaslleonardo.CreditCardAPI.database.enums.StatusFatura;
 import br.com.lucaslleonardo.CreditCardAPI.dto.dtoRequest.dtoPost.PagamentoPostRequest;
 import br.com.lucaslleonardo.CreditCardAPI.dto.dtoResponse.PagamentoResponse;
+import br.com.lucaslleonardo.CreditCardAPI.exception.FaturaNaoEncontradaException;
+import br.com.lucaslleonardo.CreditCardAPI.exception.PagamentoInvalidoException;
 import br.com.lucaslleonardo.CreditCardAPI.mappers.PagamentoMapper;
 import br.com.lucaslleonardo.CreditCardAPI.repository.ICartaoRepository;
 import br.com.lucaslleonardo.CreditCardAPI.repository.IFaturaRepository;
@@ -38,7 +40,7 @@ public class PagamentoService {
         FaturaEntity faturaEntity = faturaRepository.findByCartaoIdAndStatusFaturaIn(cartaoId, List.of(StatusFatura.ABERTA, StatusFatura.ATRASADA))
                 .orElseThrow(() -> {
                     log.warn("Nao foi encontrada fatura para pagamento no cartao de ID {}", cartaoId);
-                    return new RuntimeException("Não foi encontrada fatura para pagamento");
+                    return new FaturaNaoEncontradaException("Não foi encontrada fatura para pagamento");
                 });
 
         log.info("Fatura de ID {} encontrada com status {}", faturaEntity.getId(), faturaEntity.getStatusFatura());
@@ -66,7 +68,7 @@ public class PagamentoService {
 
         if (valorFatura.compareTo(pagamentoEntity.getValor()) < 0) {
             log.warn("Pagamento recusado. Valor do pagamento {} e maior que o valor da fatura {}", pagamentoEntity.getValor(), valorFatura);
-            throw new RuntimeException("Pagamento de valor maior que fatura");
+            throw new PagamentoInvalidoException("Pagamento de valor maior que fatura");
         }
 
         pagamentoEntity.setFatura(faturaEntity);
