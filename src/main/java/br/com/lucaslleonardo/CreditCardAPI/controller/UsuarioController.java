@@ -67,7 +67,7 @@ public class UsuarioController {
     }
 
     @DeleteMapping("/delete/{id}")
-    @Operation(summary = "")
+    @Operation(summary = "Deleta o usuario")
     @ApiResponse(responseCode = "404", description = "Usuario nao encontrado")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
