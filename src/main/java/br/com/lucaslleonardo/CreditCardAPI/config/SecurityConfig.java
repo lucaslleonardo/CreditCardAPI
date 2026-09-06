@@ -49,6 +49,10 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+
+                        .requestMatchers("/usuario/**").permitAll()
+                        .requestMatchers("/auth/**").permitAll()
+
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
 
                         .requestMatchers(HttpMethod.GET, "/cartao/*")
@@ -59,6 +63,8 @@ public class SecurityConfig {
 
                         .requestMatchers("/cartao/**")
                         .hasAnyRole("CLIENTE", "ADMIN")
+
+
 
                         .requestMatchers(HttpMethod.GET, "/cliente/listaClientes")
                         .hasRole("ADMIN")
@@ -73,11 +79,13 @@ public class SecurityConfig {
                         .hasAnyRole("CLIENTE", "ADMIN")
 
 
+
                         .requestMatchers(HttpMethod.DELETE, "/conta/*/*/delete")
                         .hasRole("ADMIN")
 
                         .requestMatchers("/conta/**")
                         .hasAnyRole("CLIENTE", "ADMIN")
+
 
 
                         .requestMatchers(HttpMethod.PUT, "/compra/cancelar/*")
@@ -87,8 +95,10 @@ public class SecurityConfig {
                         .hasAnyRole("CLIENTE", "ADMIN")
 
 
+
                         .requestMatchers("/fatura/**")
                         .hasAnyRole("CLIENTE", "ADMIN")
+
 
 
                         .requestMatchers("/pagamento/**")
