@@ -7,7 +7,7 @@ import br.com.lucaslleonardo.CreditCardAPI.database.entity.FaturaEntity;
 import br.com.lucaslleonardo.CreditCardAPI.database.enums.StatusCartao;
 import br.com.lucaslleonardo.CreditCardAPI.database.enums.StatusCompra;
 import br.com.lucaslleonardo.CreditCardAPI.database.enums.StatusFatura;
-import br.com.lucaslleonardo.CreditCardAPI.database.specification.CompraFilterRequest;
+import br.com.lucaslleonardo.CreditCardAPI.repository.specification.CompraFilterRequest;
 import br.com.lucaslleonardo.CreditCardAPI.dto.dtoRequest.dtoPost.CompraPostRequest;
 import br.com.lucaslleonardo.CreditCardAPI.dto.dtoResponse.CompraResponse;
 import br.com.lucaslleonardo.CreditCardAPI.mappers.CompraMapper;

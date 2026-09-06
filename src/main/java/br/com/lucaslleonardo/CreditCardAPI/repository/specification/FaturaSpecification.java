@@ -1,4 +1,4 @@
-package br.com.lucaslleonardo.CreditCardAPI.database.specification;
+package br.com.lucaslleonardo.CreditCardAPI.repository.specification;
 
 import br.com.lucaslleonardo.CreditCardAPI.database.entity.FaturaEntity;
 import br.com.lucaslleonardo.CreditCardAPI.database.enums.StatusFatura;

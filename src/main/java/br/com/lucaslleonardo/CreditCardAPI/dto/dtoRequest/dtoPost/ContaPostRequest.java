@@ -27,8 +27,6 @@ public class ContaPostRequest {
     @NotNull
     private BigDecimal saldo;
 
-    @NotBlank
-    private StatusConta status;
 
     @NotBlank
     private ClienteEntity cliente;

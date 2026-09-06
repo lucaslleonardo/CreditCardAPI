@@ -31,9 +31,6 @@ public class ClientePostRequest {
     private LocalDate dataNascimento;
 
     @NotBlank
-    private StatusCliente status;
-
-    @NotBlank
     private UsuarioEntity usuario;
 
 }

@@ -30,8 +30,6 @@ public class FaturaPostRequest {
     @NotNull
     private BigDecimal valor;
 
-    @NotBlank
-    private StatusFatura statusFatura;
 
     @NotBlank
     private CartaoEntity cartao;

@@ -1,7 +1,7 @@
 package br.com.lucaslleonardo.CreditCardAPI.controller;
 
 import br.com.lucaslleonardo.CreditCardAPI.database.entity.CompraEntity;
-import br.com.lucaslleonardo.CreditCardAPI.database.specification.FaturaFilterRequest;
+import br.com.lucaslleonardo.CreditCardAPI.repository.specification.FaturaFilterRequest;
 import br.com.lucaslleonardo.CreditCardAPI.dto.dtoRequest.dtoPost.FaturaPostRequest;
 import br.com.lucaslleonardo.CreditCardAPI.dto.dtoResponse.FaturaResponse;
 import br.com.lucaslleonardo.CreditCardAPI.service.FaturaService;

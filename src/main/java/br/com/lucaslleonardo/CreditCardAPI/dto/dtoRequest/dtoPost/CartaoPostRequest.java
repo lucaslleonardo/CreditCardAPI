@@ -41,9 +41,6 @@ public class CartaoPostRequest {
     private BigDecimal limiteDisponivel;
 
     @NotBlank
-    private StatusCartao statusCartao;
-
-    @NotBlank
     private ContaEntity conta;
 
     @NotBlank
