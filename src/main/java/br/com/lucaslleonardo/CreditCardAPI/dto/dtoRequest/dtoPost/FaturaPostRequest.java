@@ -30,13 +30,8 @@ public class FaturaPostRequest {
     @NotNull
     private BigDecimal valor;
 
+    @NotNull
+    private Long cartaoId;
 
-    @NotBlank
-    private CartaoEntity cartao;
 
-    @NotBlank
-    private List<CompraEntity> compra;
-
-    @NotBlank
-    private List<PagamentoEntity> pagamento;
 }

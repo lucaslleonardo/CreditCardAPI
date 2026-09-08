@@ -27,7 +27,7 @@ public class CartaoPostRequest {
     @NotBlank
     private String nomeImpresso;
 
-    @JsonFormat(pattern = "MM/YYYY")
+    @JsonFormat(pattern = "MM/yyyy")
     @NotNull
     private YearMonth validade;
 
@@ -37,16 +37,9 @@ public class CartaoPostRequest {
     @NotNull
     private BigDecimal limite;
 
+
     @NotNull
-    private BigDecimal limiteDisponivel;
+    private Long contaId;
 
-    @NotBlank
-    private ContaEntity conta;
-
-    @NotBlank
-    private List<CompraEntity> compra;
-
-    @NotBlank
-    private List<FaturaEntity> fatura;
 
 }

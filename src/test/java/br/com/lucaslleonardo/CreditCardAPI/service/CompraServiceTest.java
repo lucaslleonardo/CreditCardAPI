@@ -84,7 +84,6 @@ class CompraServiceTest {
 
         compraPostRequest = CompraPostRequest.builder()
                 .valor(new BigDecimal("500.00"))
-                .cartao(cartao)
                 .build();
 
         compraResponse = CompraResponse.builder()

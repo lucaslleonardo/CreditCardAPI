@@ -1,13 +1,16 @@
 package br.com.lucaslleonardo.CreditCardAPI.service;
 
+import br.com.lucaslleonardo.CreditCardAPI.database.entity.ClienteEntity;
 import br.com.lucaslleonardo.CreditCardAPI.database.entity.ContaEntity;
 import br.com.lucaslleonardo.CreditCardAPI.database.enums.StatusConta;
 import br.com.lucaslleonardo.CreditCardAPI.dto.dtoRequest.dtoPatch.ContaPatchRequest;
 import br.com.lucaslleonardo.CreditCardAPI.dto.dtoRequest.dtoPost.ContaPostRequest;
 import br.com.lucaslleonardo.CreditCardAPI.dto.dtoResponse.ContaResponse;
+import br.com.lucaslleonardo.CreditCardAPI.exception.ClienteNaoEncontradoException;
 import br.com.lucaslleonardo.CreditCardAPI.exception.ContaJaExisteException;
 import br.com.lucaslleonardo.CreditCardAPI.exception.ContaNaoEncontradaException;
 import br.com.lucaslleonardo.CreditCardAPI.mappers.ContaMapper;
+import br.com.lucaslleonardo.CreditCardAPI.repository.IClienteRepository;
 import br.com.lucaslleonardo.CreditCardAPI.repository.IContaRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.LoggerFactory;
@@ -24,21 +27,31 @@ public class ContaService {
 
     private final ContaMapper contaMapper;
     private final IContaRepository contaRepository;
+    private final IClienteRepository clienteRepository;
 
     public ContaResponse save(ContaPostRequest contaPostRequest) {
-        log.info("procura se a conta ja foi criada com o numero {}",contaPostRequest.getNumeroConta());
-        if(contaRepository.findByNumeroConta(contaPostRequest.getNumeroConta()).isPresent()) {
+
+        log.info("procura se a conta ja foi criada com o numero {}", contaPostRequest.getNumeroConta());
+
+        if (contaRepository.findByNumeroConta(contaPostRequest.getNumeroConta()).isPresent()) {
             throw new ContaJaExisteException("Conta ja cadastrada com esse numero");
         }
 
+        ClienteEntity clienteEntity = clienteRepository.findById(contaPostRequest.getClienteId())
+                .orElseThrow(() -> new ClienteNaoEncontradoException("Cliente nao encontrado"));
+
         ContaEntity contaEntity = contaMapper.toEntity(contaPostRequest);
+
+        contaEntity.setCliente(clienteEntity);
+
         log.info("add o status ativa");
         contaEntity.setStatusConta(StatusConta.ATIVA);
 
-        try{
+        try {
             ContaEntity savedContaEntity = contaRepository.save(contaEntity);
             return contaMapper.toResponse(savedContaEntity);
-        }catch(Exception e){
+
+        } catch (Exception e) {
             log.error("Erro ao tentar criar conta do Cliente", e);
             throw e;
         }

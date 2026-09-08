@@ -22,6 +22,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Slf4j
@@ -37,12 +38,14 @@ public class CompraService {
     @Transactional
     public CompraResponse save(CompraPostRequest compraPostRequest) {
 
-        Long cartaoId = compraPostRequest.getCartao().getId();
+        Long cartaoId = compraPostRequest.getCartaoId();
+        Long faturaId = compraPostRequest.getFaturaId();
 
         log.info("Iniciando cadastro de compra para o cartao de ID {}", cartaoId);
 
         CartaoEntity cartaoEntity = cartaoRepository.findById(cartaoId)
-                .orElseThrow(() -> { log.warn("Cartao de ID {} nao encontrado", cartaoId);
+                .orElseThrow(() -> {
+                    log.warn("Cartao de ID {} nao encontrado", cartaoId);
                     return new CartaoNaoEncontradoException("Cartao nao encontrado");
                 });
 
@@ -55,23 +58,26 @@ public class CompraService {
 
         log.info("Cartao de ID {} esta ativo", cartaoId);
 
-        ContaEntity conta = cartaoEntity.getConta();
-
-        log.info("Consultando fatura da conta de ID {}", conta.getId());
-
-        FaturaEntity faturaEntity = faturaRepository.findByCartaoContaId(conta.getId())
-                .orElseThrow(() -> { log.warn("Fatura nao encontrada para a conta de ID {}", conta.getId());
+        FaturaEntity faturaEntity = faturaRepository.findById(faturaId)
+                .orElseThrow(() -> {
+                    log.warn("Fatura de ID {} nao encontrada", faturaId);
                     return new FaturaNaoEncontradaException("Fatura nao encontrada");
                 });
 
+        log.info("Fatura de ID {} encontrada", faturaId);
+
         if (faturaEntity.getStatusFatura() != StatusFatura.ABERTA) {
-            log.warn("Compra recusada: fatura da conta de ID {} nao esta aberta", conta.getId());
+            log.warn("Compra recusada: fatura de ID {} nao esta aberta", faturaId);
             throw new FaturaNaoAbertaException("Fatura nao esta aberta");
         }
 
-        log.info("Fatura da conta de ID {} esta aberta", conta.getId());
+        log.info("Fatura de ID {} esta aberta", faturaId);
 
         CompraEntity compraEntity = compraMapper.toEntity(compraPostRequest);
+
+        compraEntity.setCartao(cartaoEntity);
+        compraEntity.setFatura(faturaEntity);
+        compraEntity.setDataCompra(LocalDate.now());
 
         log.info("Verificando limite disponivel do cartao de ID {}", cartaoId);
 
@@ -87,8 +93,14 @@ public class CompraService {
         } else {
 
             compraEntity.setStatusCompra(StatusCompra.APROVADA);
-            faturaEntity.setValor(faturaEntity.getValor().add(compraEntity.getValor()));
-            cartaoEntity.setLimiteDisponivel(cartaoEntity.getLimiteDisponivel().subtract(compraEntity.getValor()));
+
+            faturaEntity.setValor(
+                    faturaEntity.getValor().add(compraEntity.getValor())
+            );
+
+            cartaoEntity.setLimiteDisponivel(
+                    cartaoEntity.getLimiteDisponivel().subtract(compraEntity.getValor())
+            );
 
             log.info("Compra aprovada. Cartao: {}, Valor: {}, Novo valor da fatura: {}, Novo limite disponivel: {}",
                     cartaoId,
@@ -105,6 +117,7 @@ public class CompraService {
         log.info("Compra de ID {} cadastrada com status {}",
                 savedCompra.getId(),
                 savedCompra.getStatusCompra());
+
         return compraMapper.toResponse(savedCompra);
     }
 

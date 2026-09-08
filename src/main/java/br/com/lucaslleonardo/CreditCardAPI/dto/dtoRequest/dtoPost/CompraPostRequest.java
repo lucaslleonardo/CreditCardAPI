@@ -25,14 +25,10 @@ public class CompraPostRequest {
     @NotNull
     private BigDecimal valor;
 
-    @JsonFormat(pattern = "dd/MM/yyyy" )
     @NotNull
-    private LocalDate dataCompra;
+    private Long cartaoId;
 
-    @NotBlank
-    private CartaoEntity cartao;
-
-    @NotBlank
-    private FaturaEntity fatura;
+    @NotNull
+    private Long faturaId;
 
 }

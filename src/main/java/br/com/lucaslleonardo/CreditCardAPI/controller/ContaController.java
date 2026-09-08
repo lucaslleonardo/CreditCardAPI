@@ -20,7 +20,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @Validated
-@RequestMapping("Conta")
+@RequestMapping("/conta")
 @Tag(name= "Conta", description = "Operações relacionadas as contas")
 public class ContaController {
 

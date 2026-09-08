@@ -7,5 +7,5 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Builder
-public record ClienteResponse(Long id, String nome, String cpf, String email, LocalDateTime dataCriacao, LocalDate dataNascimento, StatusCliente status) {
+public record ClienteResponse(Long id, String nome, String cpf, String email, LocalDate dataNascimento, StatusCliente status) {
 }

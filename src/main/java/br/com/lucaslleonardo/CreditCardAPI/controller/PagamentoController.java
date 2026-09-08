@@ -34,9 +34,9 @@ public class PagamentoController {
             @ApiResponse(responseCode = "404", description = "Fatura nao encontrada"),
             @ApiResponse(responseCode = "400", description = "Pagamento invalido")
     })
-    public PagamentoResponse realizarPagamento(PagamentoPostRequest pagamentoPostRequest, long cartaoId){
+    public PagamentoResponse realizarPagamento(PagamentoPostRequest pagamentoPostRequest){
         log.info("Requisição para realizar pagamento");
-        return pagamentoService.pagamentoFatura(pagamentoPostRequest, cartaoId);
+        return pagamentoService.pagamentoFatura(pagamentoPostRequest);
     }
 
     @GetMapping

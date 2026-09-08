@@ -77,7 +77,6 @@ class FaturaServiceTest {
                 .build();
 
         faturaPostRequest = FaturaPostRequest.builder()
-                .cartao(cartao)
                 .dataFechamento(LocalDate.now().plusDays(10))
                 .build();
     }

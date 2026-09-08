@@ -29,14 +29,13 @@ public class CartaoEntity {
     @Column(nullable = false)
     private String nomeImpresso;
 
-    @JsonFormat(pattern = "MM/YYYY")
+    @JsonFormat(pattern = "MM/yyyy")
     @Column(nullable=false)
     private YearMonth validade;
 
     @Column(nullable=false,length=3)
     private Integer cvv;
 
-    @Column(nullable=false)
     private BigDecimal limite;
 
     @Column(nullable=false)

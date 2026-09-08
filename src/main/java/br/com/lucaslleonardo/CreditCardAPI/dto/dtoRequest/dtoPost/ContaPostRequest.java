@@ -27,11 +27,9 @@ public class ContaPostRequest {
     @NotNull
     private BigDecimal saldo;
 
+    @NotNull
+    private Long clienteId;
 
-    @NotBlank
-    private ClienteEntity cliente;
 
-    @NotBlank
-    private List<CartaoEntity> cartao;
 }
 

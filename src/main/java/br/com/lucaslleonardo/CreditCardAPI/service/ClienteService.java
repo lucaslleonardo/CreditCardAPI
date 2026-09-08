@@ -1,6 +1,7 @@
 package br.com.lucaslleonardo.CreditCardAPI.service;
 
 import br.com.lucaslleonardo.CreditCardAPI.database.entity.ClienteEntity;
+import br.com.lucaslleonardo.CreditCardAPI.database.entity.UsuarioEntity;
 import br.com.lucaslleonardo.CreditCardAPI.database.enums.StatusCliente;
 import br.com.lucaslleonardo.CreditCardAPI.dto.dtoRequest.dtoPatch.ClientePatchRequest;
 import br.com.lucaslleonardo.CreditCardAPI.dto.dtoRequest.dtoPost.ClientePostRequest;
@@ -10,6 +11,7 @@ import br.com.lucaslleonardo.CreditCardAPI.exception.ClienteJaCadastradoExceptio
 import br.com.lucaslleonardo.CreditCardAPI.exception.ClienteNaoEncontradoException;
 import br.com.lucaslleonardo.CreditCardAPI.mappers.ClienteMapper;
 import br.com.lucaslleonardo.CreditCardAPI.repository.IClienteRepository;
+import br.com.lucaslleonardo.CreditCardAPI.repository.IUsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -23,10 +25,14 @@ public class ClienteService {
 
     private final ClienteMapper clienteMapper;
     private final IClienteRepository clienteRepository;
+    private final IUsuarioRepository usuarioRepository;
 
     public static Logger log = LoggerFactory.getLogger(ClienteService.class);
 
     public ClienteResponse save(ClientePostRequest clientePostRequest) {
+
+        UsuarioEntity usuario = usuarioRepository.findById(clientePostRequest.getUsuarioId())
+                .orElseThrow(() -> new RuntimeException("Usuario não encontrado"));
 
         log.info("procura se o usuario de email {} ja esta registrado", clientePostRequest.getEmail());
         if (clienteRepository.findByEmail(clientePostRequest.getEmail()).isPresent()) {
@@ -34,6 +40,7 @@ public class ClienteService {
         }
 
         ClienteEntity clienteEntity = clienteMapper.toEntity(clientePostRequest);
+        clienteEntity.setUsuario(usuario);
         log.info("Adiciona o status 'ATIVO' no cliente");
         clienteEntity.setStatus(StatusCliente.ATIVO);
 

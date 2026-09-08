@@ -33,24 +33,26 @@ public class PagamentoService {
     private final IFaturaRepository faturaRepository;
     private final ICartaoRepository cartaoRepository;
 
-    public PagamentoResponse pagamentoFatura(PagamentoPostRequest pagamentoPostRequest, long cartaoId) {
+    public PagamentoResponse pagamentoFatura(PagamentoPostRequest pagamentoPostRequest) {
 
-        log.info("Iniciando pagamento da fatura do cartao de ID {}", cartaoId);
+        Long faturaId = pagamentoPostRequest.getFaturaId();
 
-        FaturaEntity faturaEntity = faturaRepository.findByCartaoIdAndStatusFaturaIn(cartaoId, List.of(StatusFatura.ABERTA, StatusFatura.ATRASADA))
+        log.info("Iniciando pagamento da fatura de ID {}", faturaId);
+
+        FaturaEntity faturaEntity = faturaRepository.findById(faturaId)
                 .orElseThrow(() -> {
-                    log.warn("Nao foi encontrada fatura para pagamento no cartao de ID {}", cartaoId);
+                    log.warn("Nao foi encontrada fatura de ID {}", faturaId);
                     return new FaturaNaoEncontradaException("Não foi encontrada fatura para pagamento");
                 });
 
         log.info("Fatura de ID {} encontrada com status {}", faturaEntity.getId(), faturaEntity.getStatusFatura());
-
 
         if (LocalDate.now().isAfter(faturaEntity.getDataVencimento()) && !faturaEntity.isJurosAplicado()) {
             log.info("Fatura de ID {} esta vencida. Aplicando juros de 15%", faturaEntity.getId());
 
             BigDecimal juros = faturaEntity.getValor()
                     .multiply(BigDecimal.valueOf(0.15));
+
             faturaEntity.setValor(faturaEntity.getValor().add(juros));
             faturaEntity.setStatusFatura(StatusFatura.ATRASADA);
             faturaEntity.setJurosAplicado(true);
@@ -67,7 +69,8 @@ public class PagamentoService {
         log.info("Valor do pagamento: {}", pagamentoEntity.getValor());
 
         if (valorFatura.compareTo(pagamentoEntity.getValor()) < 0) {
-            log.warn("Pagamento recusado. Valor do pagamento {} e maior que o valor da fatura {}", pagamentoEntity.getValor(), valorFatura);
+            log.warn("Pagamento recusado. Valor do pagamento {} e maior que o valor da fatura {}",
+                    pagamentoEntity.getValor(), valorFatura);
             throw new PagamentoInvalidoException("Pagamento de valor maior que fatura");
         }
 
@@ -83,26 +86,29 @@ public class PagamentoService {
             log.info("Fatura de ID {} foi totalmente paga", faturaEntity.getId());
 
             faturaEntity.setStatusFatura(StatusFatura.PAGA);
-            faturaRepository.save(faturaEntity);
         }
 
         CartaoEntity cartaoEntity = faturaEntity.getCartao();
 
-        log.info("Liberando limite do cartao de ID {} no valor de {}", cartaoId, pagamentoEntity.getValor());
+        log.info("Liberando limite do cartao de ID {} no valor de {}",
+                cartaoEntity.getId(), pagamentoEntity.getValor());
 
-        cartaoEntity.setLimiteDisponivel(cartaoEntity.getLimiteDisponivel().add(pagamentoEntity.getValor()));
+        cartaoEntity.setLimiteDisponivel(
+                cartaoEntity.getLimiteDisponivel().add(pagamentoEntity.getValor())
+        );
 
-        log.info("Novo limite disponivel do cartao de ID {}: {}", cartaoId, cartaoEntity.getLimiteDisponivel());
+        log.info("Novo limite disponivel do cartao de ID {}: {}",
+                cartaoEntity.getId(), cartaoEntity.getLimiteDisponivel());
 
         faturaRepository.save(faturaEntity);
         cartaoRepository.save(cartaoEntity);
 
         PagamentoEntity savedPagamento = pagamentoRepository.save(pagamentoEntity);
 
-        log.info("Pagamento de ID {} realizado com sucesso para a fatura de ID {}", savedPagamento.getId(), faturaEntity.getId());
+        log.info("Pagamento de ID {} realizado com sucesso para a fatura de ID {}",
+                savedPagamento.getId(), faturaEntity.getId());
 
         return pagamentoMapper.toResponse(savedPagamento);
-
     }
 
 

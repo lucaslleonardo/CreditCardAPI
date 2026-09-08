@@ -1,5 +1,6 @@
 package br.com.lucaslleonardo.CreditCardAPI.service;
 
+import br.com.lucaslleonardo.CreditCardAPI.database.entity.CartaoEntity;
 import br.com.lucaslleonardo.CreditCardAPI.database.entity.CompraEntity;
 import br.com.lucaslleonardo.CreditCardAPI.database.entity.FaturaEntity;
 import br.com.lucaslleonardo.CreditCardAPI.database.enums.StatusFatura;
@@ -36,7 +37,7 @@ public class FaturaService {
 
     public FaturaResponse cadastrarInfosFatura(FaturaPostRequest faturaPostRequest) {
 
-        Long cartaoId = faturaPostRequest.getCartao().getId();
+        Long cartaoId = faturaPostRequest.getCartaoId();
 
         log.info("Iniciando cadastro da fatura para o cartao de ID {}", cartaoId);
 
@@ -45,7 +46,14 @@ public class FaturaService {
             throw new FaturaJaCadastradaException("Fatura ja cadastrada");
         }
 
+        CartaoEntity cartaoEntity = cartaoRepository.findById(cartaoId)
+                .orElseThrow(() -> {
+                    log.warn("Cartao de ID {} nao encontrado", cartaoId);
+                    return new CartaoNaoEncontradoException("Cartao nao encontrado");
+                });
+
         FaturaEntity faturaEntity = faturaMapper.toEntity(faturaPostRequest);
+        faturaEntity.setCartao(cartaoEntity);
 
         LocalDate dataFechamento = faturaPostRequest.getDataFechamento();
         LocalDate dataVencimento = dataFechamento.plusDays(7);

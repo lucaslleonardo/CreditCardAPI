@@ -30,7 +30,7 @@ public class ClientePostRequest {
     @NotNull
     private LocalDate dataNascimento;
 
-    @NotBlank
-    private UsuarioEntity usuario;
+    @NotNull
+    private Long usuarioId;
 
 }

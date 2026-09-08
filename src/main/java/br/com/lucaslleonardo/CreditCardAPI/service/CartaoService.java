@@ -1,6 +1,7 @@
 package br.com.lucaslleonardo.CreditCardAPI.service;
 
 import br.com.lucaslleonardo.CreditCardAPI.database.entity.CartaoEntity;
+import br.com.lucaslleonardo.CreditCardAPI.database.entity.ContaEntity;
 import br.com.lucaslleonardo.CreditCardAPI.database.enums.StatusCartao;
 import br.com.lucaslleonardo.CreditCardAPI.dto.dtoRequest.dtoPatch.CartaoPatchRequest;
 import br.com.lucaslleonardo.CreditCardAPI.dto.dtoRequest.dtoPost.CartaoPostRequest;
@@ -34,7 +35,11 @@ public class CartaoService {
 
     public CartaoResponse save(CartaoPostRequest cartaoPostRequest) {
 
+        ContaEntity contaEntity = contaRepository.findById(cartaoPostRequest.getContaId())
+                .orElseThrow(() -> new RuntimeException("Conta nao encontrada"));
+
         log.info("Iniciando cadastro do cartao de numero {}", cartaoPostRequest.getNumeroCartao());
+
         if (cartaoRepository.findByNumeroCartao(cartaoPostRequest.getNumeroCartao()).isPresent()) {
 
             log.warn("Cartao de numero {} ja esta cadastrado", cartaoPostRequest.getNumeroCartao());
@@ -42,6 +47,8 @@ public class CartaoService {
         }
 
         CartaoEntity cartaoEntity = cartaoMapper.toEntity(cartaoPostRequest);
+        cartaoEntity.setConta(contaEntity);
+        cartaoEntity.setLimiteDisponivel(cartaoEntity.getLimite());
 
         log.info("Definindo status do cartao como ATIVO");
         cartaoEntity.setStatusCartao(StatusCartao.ATIVO);

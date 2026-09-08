@@ -35,7 +35,7 @@ public class CartaoController {
             @ApiResponse(responseCode = "404",description = "Cartão não encontrado"),
             @ApiResponse(responseCode = "404",description = "Conta não encontrada"),
     })
-    public CartaoResponse save (CartaoPostRequest cartaoPostRequest) {
+    public CartaoResponse save (@Valid @RequestBody CartaoPostRequest cartaoPostRequest) {
         return cartaoService.save(cartaoPostRequest);
     }
 

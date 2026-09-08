@@ -26,9 +26,7 @@ public class PagamentoPostRequest {
     @JsonFormat(pattern = "dd/MM/yyyy" )
     private LocalDate dataPagamento;
 
-    @NotBlank
-    private StatusFatura statusFatura;
+    @NotNull
+    private Long faturaId;
 
-    @NotBlank
-    private FaturaEntity fatura;
 }
